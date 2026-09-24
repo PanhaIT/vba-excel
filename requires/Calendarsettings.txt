@@ -1,0 +1,1 @@
+FirstWeek:2;DateType:dd.mm.yyyy;CalLanguage:EN
