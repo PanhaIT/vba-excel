@@ -407,43 +407,30 @@ Public  Function checkFolderExist()
         If (mainPath <> "") Then
             If (rng_file_setting.Cells(i,5) <> "") Then
                 folder = mainPath & rng_file_setting.Cells(i,5) 'ks_system
-                If MyFSO.FolderExists(folder) = False Then
-                    MyFSO.CreateFolder (folder)
-                End If
+                If MyFSO.FolderExists(folder) = False Then MyFSO.CreateFolder (folder)
             End If
             If (MyFSO.FolderExists(folder) = True) Then
                 If (rng_file_setting.Cells(i,6) <> "") Then
                     subFolder1 = folder & "\" & rng_file_setting.Cells(i,6) 'report
-                    If MyFSO.FolderExists(subFolder1) = False Then
-                        MyFSO.CreateFolder (subFolder1)
-                    End If
+                    If MyFSO.FolderExists(subFolder1) = False Then MyFSO.CreateFolder (subFolder1)
                 End If
             End If
             If (MyFSO.FolderExists(subFolder1) = True) Then
                 If (rng_file_setting.Cells(i,7) <> "") Then
                     subFolder2 = subFolder1 & "\" & rng_file_setting.Cells(i,7) 'subFolder2
-                    If MyFSO.FolderExists(subFolder2) = False Then
-                        ' debug.print i & " - folder name in report folder => " & MyFSO.FolderExists(subFolder2)
-                        MyFSO.CreateFolder (subFolder2)
-                    End If
+                    If MyFSO.FolderExists(subFolder2) = False Then MyFSO.CreateFolder (subFolder2)
                 End If
             End If
             If (MyFSO.FolderExists(subFolder2) = True) Then
                 If (rng_file_setting.Cells(i,8) <> "") Then
                     subFolder3 = subFolder2 & "\" & rng_file_setting.Cells(i,8) 'sub folder 3
-                    If MyFSO.FolderExists(subFolder3) = False Then
-                        ' debug.print i & " - sub folder 3 => " & MyFSO.FolderExists(subFolder3)
-                        MyFSO.CreateFolder (subFolder3)
-                    End If
+                    If MyFSO.FolderExists(subFolder3) = False Then MyFSO.CreateFolder (subFolder3)
                 End If
             End If
             If (MyFSO.FolderExists(subFolder3) = True) Then
                 If (rng_file_setting.Cells(i,9) <> "") Then
                     subFolder4 = subFolder3 & "\" & rng_file_setting.Cells(i,9) 'sub folder 4
-                    If MyFSO.FolderExists(subFolder4) = False Then
-                        ' debug.print i & " - sub folder 3 => " & MyFSO.FolderExists(subFolder4)
-                        MyFSO.CreateFolder (subFolder4)
-                    End If
+                    If MyFSO.FolderExists(subFolder4) = False Then MyFSO.CreateFolder (subFolder4)
                 End If
             End If
         End If
