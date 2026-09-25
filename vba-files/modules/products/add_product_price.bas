@@ -62,16 +62,16 @@ Private Sub AddProductPriceByUom()
                 k = 0
 
                 For j = 1 To totalUomConversion
-                    If (uomConversionId(k) * 1 > 0) Then
+                    If (CInt(uomConversionId(k))  > 0) Then
                         ' debug.Print "uomConversionId(k)=" & uomConversionId(k) & "priceByUom(k)=" & priceByUom(k)
                         'checkExistPrice=" & checkExistPrice(k)
                         If priceByUom(k) * 1 > 0 Then 'Insert only price bigger than zero
-                            checkExist = checkAmountInProductPrice(productId * 1,branchId * 1,priceTypeId * 1,uomConversionId(k) * 1,setType * 1,isActive *1)
+                            checkExist = checkAmountInProductPrice(CInt(productId),CInt(branchId),CInt(priceTypeId),CInt(uomConversionId(k)),CInt(setType),CInt(isActive))
 
                             If (checkExist=1) Then 'checkExist = checkExistPrice(k)
                                 '1= exist price => update price
                                 For m = 1 To totalRowProductPrice
-                                    If (productId = productPriceData.Cells(m, 2) AND branchId = productPriceData.Cells(m, 5) And priceTypeId = productPriceData.Cells(m, 6) And uomConversionId(k) * 1 =  productPriceData.Cells(m, 7) And productPriceData.Cells(m, 15) = setType And productPriceData.Cells(m, 18) = 1) Then
+                                    If (productId = productPriceData.Cells(m, 2) AND branchId = productPriceData.Cells(m, 5) And priceTypeId = productPriceData.Cells(m, 6) And CInt(uomConversionId(k)) =  productPriceData.Cells(m, 7) And productPriceData.Cells(m, 15) = setType And productPriceData.Cells(m, 18) = 1) Then
                                         If (productPriceData.Cells(m, 12) > 0) Then
                                             'Insert unit cost history
                                             n = ws_price_his.Cells(Rows.Count, "C").End(xlUp).Row - 6
