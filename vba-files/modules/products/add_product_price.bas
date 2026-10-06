@@ -60,7 +60,7 @@ Private Sub AddProductPriceByUom()
 
                 'Insert/update price by each uom
                 k = 0
-
+                
                 For j = 1 To totalUomConversion
                     If (CInt(uomConversionId(k))  > 0) Then
                         ' debug.Print "uomConversionId(k)=" & uomConversionId(k) & "priceByUom(k)=" & priceByUom(k)

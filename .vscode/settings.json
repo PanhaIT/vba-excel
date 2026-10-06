@@ -1,5 +1,12 @@
 {
     "powerquery.client.additionalSymbolsDirectories": [
         "d:/vba-project/excel_vba/.vscode/excel-pq-symbols"
-    ]
+    ],
+    "github.copilot.chat.codesearch.enabled": true,
+    "chat.editor.preferCopilotHarness": true,
+    "github.copilot.chat.alternateGeminiModelFPrompt.enabled": true,
+    "github.copilot.chat.alternateGptPrompt.enabled": true,
+    "github.copilot.chat.anthropic.tools.websearch.enabled": true,
+    "github.copilot.chat.claudeOpus5Prompt.enabled": true,
+    "github.copilot.chat.claudeSonnet5Prompt.enabled": true
 }

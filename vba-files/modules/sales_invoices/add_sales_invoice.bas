@@ -942,6 +942,11 @@ Private Sub copyInvoiceForm()
     Sheets("AddInvoice").Range("invoice_copy_area").Copy
 End Sub
 
+private Sub frmAutoInvoice()
+    autoAddItemInvoice.Show
+End Sub
+
+
 ' Private Function updateStatusSalesInvoice(invoiceNo)
 '     Dim invId, lastCol,invIdSd, m, n As Long
 '     Dim ws,sd As Worksheet

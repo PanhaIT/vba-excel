@@ -447,9 +447,7 @@ Public Function getStockAvariableByUom(productId As Integer, smallQtyAvariable A
     Set ws_uom          = activeWorkbook.Sheets("UoM")
     Set rng_uom_list    = ws_uom.Range("C8:I" & ws_uom.Cells(Rows.Count,"C").End(xlUp).row)
 
-    If (mainUomName = "") Then
-        mainUomName = Application.VLOOKUP(mainUomId,rng_uom_list,5,FALSE)
-    End If
+    If (mainUomName = "") Then mainUomName = Application.VLOOKUP(mainUomId,rng_uom_list,5,FALSE)
 
     If (smallValUom = 1) Then 
         getStockAvariableByUom = smallQtyAvariable & mainUomName
@@ -459,9 +457,9 @@ Public Function getStockAvariableByUom(productId As Integer, smallQtyAvariable A
         Dim smallUomName,middleUomName As String
         Dim bigQty, decimalQty,qtyNegativeAndPositive As Double
         Dim integerQty As Long
-        
+
         Set ws_uom_con  = activeWorkbook.Sheets("UomConversion")
-        
+
         index   = 5 'value uom
         index1  = 2 'to uom id
         Set criteriaRange  = ws_uom_con.Range("D8:J500") 'table uom conversion range
@@ -522,3 +520,520 @@ Public Function getStockAvariableByUom(productId As Integer, smallQtyAvariable A
     End If
     OnEnd
 End Function
+
+Public  Sub getItemInvoiceTest()
+    OnStart
+    Dim activeWorkbook As Workbook
+    Dim wsInv As Worksheet
+    Dim lastRow As Long
+    Dim item_row,rngPro As Range
+    Dim i As Long
+    Dim a,incNo As Integer
+
+    Set activeWorkbook = Workbooks("index.xlsm")
+    Set wsInv = activeWorkbook.Sheets("ProductList")
+    
+    lastRow = wsInv.Cells(Rows.Count, "C").End(xlUp).Row
+    Set item_row  = wsInv.Range("C8:AA" & lastRow) 'product_list ,"C8:AA" & lastRow
+    incNo=1
+    For a = 1 To item_row.rows.Count
+        If (item_row.Cells(a,1) <> "") Then
+            debug.Print item_row.Cells(a,4)  '"i=" & i & ", lastRow=" & lastRow & ", sku=" & item_row.Cells(i, 4)\
+            wsInv.Cells(a + 7,"AI").Value = item_row.Cells(a,4)
+        End If
+    Next a
+
+    MsgBox "Invoice populated successfully!"
+    OnEnd
+End Sub
+
+' AI code VBA excel sheet get auto select items when create invoice by passing argument total amount of invoice, multi product group,multi product brand,mu
+Function AutoSelectInvoiceItems(ByVal TargetAmount As Double, _
+                                ByVal ProductGroups As String, _
+                                ByVal ProductBrands As String, _
+                                ByVal Locations As String, _
+                                ByVal Warehouses As String, _
+                                ByVal Branch As String) As Variant
+    
+    Dim wsInv As Worksheet
+    Dim lastRow As Long, i As Long
+    Dim currentAmount As Double
+    Dim itemPrice As Double, itemQty As Double, lineTotal As Double
+    
+    ' Output array to hold selected item details
+    ' Adjust size or columns based on what you need to return
+    Dim selectedItems() As Variant
+    Dim itemCount As Long
+    itemCount = 0
+    currentAmount = 0#
+    
+    ' 1. Set your source ProductList sheet
+    On Error Resume Next
+    Set wsInv = ThisWorkbook.Sheets("ProductList")
+    On Error GoTo 0
+    
+    If wsInv Is Nothing Then
+        MsgBox "Error: 'ProductList' sheet not found!", vbCritical
+        Exit Function
+    End If
+    
+    lastRow = wsInv.Cells(wsInv.Rows.Count, "A").End(xlUp).Row
+    
+    ' 2. Loop through ProductList items (Assuming headers are in row 1, data starts row 2)
+    ' Adjust column letters (e.g., "A", "B", "C") to match your exact ProductList sheet layout
+    For i = 2 To lastRow
+        
+        ' Check if we have already reached or exceeded the required invoice amount
+        If currentAmount >= TargetAmount Then Exit For
+        
+        ' Extract criteria values from the current row
+        Dim rowGroup As String: rowGroup = wsInv.Cells(i, "A").Value      ' Column A: Product Group
+        Dim rowBrand As String: rowBrand = wsInv.Cells(i, "B").Value      ' Column B: Brand
+        Dim rowLoc As String: rowLoc = wsInv.Cells(i, "C").Value          ' Column C: Location
+        Dim rowWh As String: rowWh = wsInv.Cells(i, "D").Value            ' Column D: Warehouse
+        Dim rowBranch As String: rowBranch = wsInv.Cells(i, "E").Value    ' Column E: Branch
+        
+        ' 3. Apply Multi-Filter Checks (using InStr to handle comma-separated multi-selects)
+        If (ProductGroups = "" Or InStr(1, ProductGroups, rowGroup, vbTextCompare) > 0) And _
+           (ProductBrands = "" Or InStr(1, ProductBrands, rowBrand, vbTextCompare) > 0) And _
+           (Locations = "" Or InStr(1, Locations, rowLoc, vbTextCompare) > 0) And _
+           (Warehouses = "" Or InStr(1, Warehouses, rowWh, vbTextCompare) > 0) And _
+           (Branch = "" Or LCase(rowBranch) = LCase(Branch)) Then
+
+            ' Extract item financial/quantity data
+            Dim itemID As String: itemID = wsInv.Cells(i, "F").Value      ' Column F: Item ID/SKU
+            itemQty = wsInv.Cells(i, "G").Value                           ' Column G: Available Qty
+            itemPrice = wsInv.Cells(i, "H").Value                         ' Column H: Unit Price
+            
+            If itemQty > 0 And itemPrice > 0 Then
+                lineTotal = itemQty * itemPrice
+                
+                ' Check if adding the whole lot exceeds the target amount
+                If (currentAmount + lineTotal) > TargetAmount Then
+                    ' Calculate exactly how many pieces are needed to hit the target
+                    Dim neededAmount As Double
+                    neededAmount = TargetAmount - currentAmount
+                    
+                    Dim neededQty As Double
+                    neededQty = Application.WorksheetFunction.RoundUp(neededAmount / itemPrice, 0)
+                    
+                    ' If available stock covers the needed partial quantity
+                    If neededQty <= itemQty Then
+                        itemQty = neededQty
+                        lineTotal = itemQty * itemPrice
+                    End If
+                End If
+                
+                ' Update total invoice accumulator
+                currentAmount = currentAmount + lineTotal
+                itemCount = itemCount + 1
+                
+                ' Resize array and store the selected item data
+                ReDim Preserve selectedItems(1 To 4, 1 To itemCount)
+                selectedItems(1, itemCount) = itemID      ' SKU
+                selectedItems(2, itemCount) = itemQty     ' Quantity to pull
+                selectedItems(3, itemCount) = itemPrice   ' Price
+                selectedItems(4, itemCount) = lineTotal   ' Total for line
+            End If
+            
+        End If
+    Next i
+    
+    ' Return the populated array back to the calling sub
+    If itemCount > 0 Then
+        AutoSelectInvoiceItems = selectedItems
+    Else
+        AutoSelectInvoiceItems = Empty
+    End If
+    
+End Function
+
+Sub addItemsInvoice()
+    Dim invoiceData As Variant
+    Dim wsInvoice As Worksheet
+    Dim targetAmt As Double
+    Dim i As Long
+    
+    Set wsInvoice = ThisWorkbook.Sheets("Invoice")
+    targetAmt = 5000.00 ' Your target invoice total amount
+    
+    ' Pass comma-separated strings for multi-select arguments
+    invoiceData = AutoSelectInvoiceItems(targetAmt, _
+                                         "Electronics,Appliances", _
+                                         "Sony,Samsung", _
+                                         "North,East", _
+                                         "WH-01,WH-02", _
+                                         "Main Branch")
+                                         
+    ' Check if items were found
+    If IsEmpty(invoiceData) Then
+        MsgBox "No items matched the criteria or stock is empty.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Clear old invoice lines (assuming rows 5 onwards are item rows)
+    wsInvoice.Rows("5:100").ClearContents
+    
+    ' Write the array data down onto the invoice template
+    For i = 1 To UBound(invoiceData, 2)
+        wsInvoice.Cells(4 + i, "A").Value = invoiceData(1, i) ' Item ID
+        wsInvoice.Cells(4 + i, "B").Value = invoiceData(2, i) ' Qty Allocated
+        wsInvoice.Cells(4 + i, "C").Value = invoiceData(3, i) ' Price
+        wsInvoice.Cells(4 + i, "D").Value = invoiceData(4, i) ' Total
+    Next i
+    
+    MsgBox "Invoice populated successfully!", vbInformation
+End Sub
+
+' Public Sub CreateInvoiceByCriteria(ByVal TargetAmount As Double, _
+'                             ByVal ProdGroup As String, _
+'                             ByVal ProdBrand As String, _
+'                             ByVal Location As String, _
+'                             ByVal Warehouse As String, _
+'                             ByVal Branch As String)
+
+'     Dim wsInventory As Worksheet
+'     Dim wsInvoice As Worksheet
+'     Dim lastRowInv As Long
+'     Dim nextRowInvc As Long
+'     Dim i As Long
+    
+'     Dim currentGroup As String
+'     Dim currentBrand As String
+'     Dim currentLoc As String
+'     Dim currentWh As String
+'     Dim currentBranch As String
+'     Dim itemPrice As Double
+'     Dim itemName As String
+'     Dim itemId As String
+    
+'     Dim RunningTotal As Double
+'     Dim MatchCount As Long
+    
+'     ' Set worksheet references (Adjust names to match your workbook)
+'     Set wsInventory = ThisWorkbook.Sheets("Inventory")
+'     Set wsInvoice = ThisWorkbook.Sheets("Invoice")
+    
+'     ' Find the last row of data in the Inventory sheet (assuming Column A has Item IDs)
+'     lastRowInv = wsInventory.Cells(wsInventory.Rows.Count, "A").End(xlUp).Row
+    
+'     ' Find the next available row in the Invoice sheet (assuming Column A)
+'     nextRowInvc = wsInvoice.Cells(wsInvoice.Rows.Count, "A").End(xlUp).Row + 1
+    
+'     RunningTotal = 0
+'     MatchCount = 0
+    
+'     ' Screen updating turned off for faster execution
+'     Application.ScreenUpdating = False
+    
+'     ' Loop through the Inventory rows (assuming headers are in Row 1, data starts at Row 2)
+'     For i = 2 To lastRowInv
+        
+'         ' Read row values (Adjust column letters to match your actual Inventory layout)
+'         itemId = wsInventory.Cells(i, "A").Value      ' Column A: Item ID
+'         itemName = wsInventory.Cells(i, "B").Value    ' Column B: Item Name
+'         currentGroup = wsInventory.Cells(i, "C").Value ' Column C: Product Group
+'         currentBrand = wsInventory.Cells(i, "D").Value ' Column D: Product Brand
+'         currentLoc = wsInventory.Cells(i, "E").Value   ' Column E: Location
+'         currentWh = wsInventory.Cells(i, "F").Value    ' Column F: Warehouse
+'         currentBranch = wsInventory.Cells(i, "G").Value ' Column G: Branch
+'         itemPrice = wsInventory.Cells(i, "H").Value   ' Column H: Price/Amount
+        
+'         ' Check if the current item matches ALL specified criteria
+'         If (currentGroup = ProdGroup) And _
+'            (currentBrand = ProdBrand) And _
+'            (currentLoc = Location) And _
+'            (currentWh = Warehouse) And _
+'            (currentBranch = Branch) Then
+           
+'             ' Check if adding this item stays within or completes our Target Amount
+'             ' (Alternatively, remove "RunningTotal + itemPrice <= TargetAmount" if you want to get as close as possible even if it goes over slightly)
+'             If RunningTotal + itemPrice <= TargetAmount Then
+                
+'                 ' Copy item details to Invoice Sheet (Adjust destination columns as needed)
+'                 wsInvoice.Cells(nextRowInvc, "A").Value = itemId
+'                 wsInvoice.Cells(nextRowInvc, "B").Value = itemName
+'                 wsInvoice.Cells(nextRowInvc, "C").Value = itemPrice
+                
+'                 ' Update tracking metrics
+'                 RunningTotal = RunningTotal + itemPrice
+'                 nextRowInvc = nextRowInvc + 1
+'                 MatchCount = MatchCount + 1
+                
+'                 ' Stop looping if we have perfectly hit or exhausted the budget target
+'                 If RunningTotal >= TargetAmount Then Exit For
+'             End If
+            
+'         End If
+'     Next i
+    
+'     Application.ScreenUpdating = True
+    
+'     ' Output results or warnings to the user
+'     If MatchCount = 0 Then
+'         MsgBox "No items found matching the given criteria.", vbExclamation, "No Selection Made"
+'     ElseIf RunningTotal < TargetAmount Then
+'         MsgBox "Invoice created, but stock was insufficient to reach the target amount." & vbCrLf & _
+'                "Target: " & FormatCurrency(TargetAmount) & vbCrLf & _
+'                "Allocated: " & FormatCurrency(RunningTotal), vbByVal, "Partial Fulfillment"
+'     Else
+'         MsgBox "Successfully created invoice for " & FormatCurrency(RunningTotal), vbInformation, "Invoice Complete"
+'     End If
+
+' End Sub
+
+' Sub TestInvoiceSelection()
+'     ' Call the routine with sample arguments
+'     ' Format: TargetAmount, ProductGroup, ProductBrand, Location, Warehouse, Branch
+'     ' Call CreateInvoiceByCriteria(1500.0, "Electronics", "Sony", "North", "WH-02", "Branch-A")
+' End Sub
+
+''' =================================================================
+''' Main function to auto-select items for an invoice
+''' =================================================================
+' get auto select items when create invoice by passing argument total amount of invoice, multi product group,multi product brand,multi location,multi warehouse,branch
+' Public Function AutoSelectInvoiceItems( _
+'     ByVal TargetAmount As Double, _
+'     ByVal ProductGroups As String, _
+'     ByVal ProductBrands As String, _
+'     ByVal Locations As String, _
+'     ByVal Warehouses As String, _
+'     ByVal Branches As String) As Variant
+    
+'     Dim ws As Worksheet
+'     Dim LastRow As Long, i As Long, matchCount As Long
+'     Dim itemPrice As Double, currentTotal As Double
+'     Dim groupArr() As String, brandArr() As String
+'     Dim locArr() As String, whArr() As String, branchArr() As String
+    
+'     ' Split comma-separated arguments into arrays for multi-select matching
+'     groupArr = Split(Trim(ProductGroups), ",")
+'     brandArr = Split(Trim(ProductBrands), ",")
+'     locArr = Split(Trim(Locations), ",")
+'     whArr = Split(Trim(Warehouses), ",")
+'     branchArr = Split(Trim(Branches), ",")
+    
+'     ' Set reference to your Inventory worksheet
+'     Set ws = ThisWorkbook.Sheets("Inventory")
+'     LastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+'     ' Dynamic array to hold selected Item IDs
+'     Dim SelectedItems() As String
+'     ReDim SelectedItems(0)
+'     matchCount = 0
+'     currentTotal = 0#
+    
+'     ' Loop through inventory rows (assuming row 1 has headers, data starts at row 2)
+'     For i = 2 To LastRow
+'         ' 1. Validate multiple criteria using helper function
+'         If IsMatch(ws.Cells(i, 3).Value, groupArr) And _
+'            IsMatch(ws.Cells(i, 4).Value, brandArr) And _
+'            IsMatch(ws.Cells(i, 5).Value, locArr) And _
+'            IsMatch(ws.Cells(i, 6).Value, whArr) And _
+'            IsMatch(ws.Cells(i, 7).Value, branchArr) Then
+           
+'             itemPrice = CDbl(ws.Cells(i, 8).Value) ' Assuming Column 8/H is Price
+
+'             ' 2. Greedy allocation: check if adding this item fits the budget
+'             If (currentTotal + itemPrice) <= TargetAmount Then
+'                 ReDim Preserve SelectedItems(matchCount)
+'                 SelectedItems(matchCount) = ws.Cells(i, 1).Value ' Column 1/A is Item ID
+'                 matchCount = matchCount + 1
+'                 currentTotal = currentTotal + itemPrice
+'             End If
+
+'             ' Exit early if we exactly hit or get within a negligible margin of the target
+'             If Abs(currentTotal - TargetAmount) < 0.01 Then Exit For
+'         End If
+'     Next i
+    
+'     ' Return the array of selected items (or an error string if none found)
+'     If matchCount > 0 Then
+'         AutoSelectInvoiceItems = SelectedItems
+'     Else
+'         AutoSelectInvoiceItems = "No items matched criteria or target amount."
+'     End If
+' End Function
+
+' ''' =================================================================
+' ''' Helper function to check if a value exists within the multi-select array
+' ''' =================================================================
+' Private Function IsMatch(ByVal valToTest As String, ByRef searchArr() As String) As Boolean
+'     Dim element As Variant
+'     IsMatch = False
+    
+'     ' If the criteria array is empty or contains "*", bypass filtering for this criteria
+'     If UBound(searchArr) < LBound(searchArr) Then
+'         IsMatch = True
+'         Exit Function
+'     End If
+'     If Trim(searchArr(0)) = "*" Or Trim(searchArr(0)) = "" Then
+'         IsMatch = True
+'         Exit Function
+'     End If
+    
+'     ' Check for exact match across multi-select values
+'     For Each element In searchArr
+'         If UCase(Trim(valToTest)) = UCase(Trim(CStr(element))) Then
+'             IsMatch = True
+'             Exit Function
+'         End If
+'     Next element
+' End Function
+
+' Sub TestInvoiceSelection()
+'     Dim results As Variant
+'     Dim i As Long
+    
+'     ' Example: Target $500, passing comma-separated values for multi-selections
+'     results = AutoSelectInvoiceItems(500.0, "Electronics,Home", "Sony,Samsung", "North,East", "WH-01", "Branch-A")
+    
+'     If IsArray(results) Then
+'         MsgBox "Selected " & UBound(results) + 1 & " items for the invoice!"
+'         For i = LBound(results) To UBound(results)
+'             Debug.Print "Selected Item ID: " & results(i)
+'         Next i
+'     Else
+'         MsgBox results
+'     End If
+' End Sub
+
+' AI code VBA excel sheet get auto select items when create invoice by passing argument total amount of invoice, multi product group,multi product brand,mu
+' Function AutoSelectInvoiceItems(ByVal TargetAmount As Double, _
+'                                 ByVal ProductGroups As String, _
+'                                 ByVal ProductBrands As String, _
+'                                 ByVal Locations As String, _
+'                                 ByVal Warehouses As String, _
+'                                 ByVal Branch As String) As Variant
+    
+'     Dim wsInv As Worksheet
+'     Dim lastRow As Long, i As Long
+'     Dim currentAmount As Double
+'     Dim itemPrice As Double, itemQty As Double, lineTotal As Double
+    
+'     ' Output array to hold selected item details
+'     ' Adjust size or columns based on what you need to return
+'     Dim selectedItems() As Variant
+'     Dim itemCount As Long
+'     itemCount = 0
+'     currentAmount = 0#
+    
+'     ' 1. Set your source inventory sheet
+'     On Error Resume Next
+'     Set wsInv = ThisWorkbook.Sheets("Inventory")
+'     On Error GoTo 0
+    
+'     If wsInv Is Nothing Then
+'         MsgBox "Error: 'Inventory' sheet not found!", vbCritical
+'         Exit Function
+'     End If
+    
+'     lastRow = wsInv.Cells(wsInv.Rows.Count, "A").End(xlUp).Row
+    
+'     ' 2. Loop through inventory items (Assuming headers are in row 1, data starts row 2)
+'     ' Adjust column letters (e.g., "A", "B", "C") to match your exact inventory sheet layout
+'     For i = 2 To lastRow
+        
+'         ' Check if we have already reached or exceeded the required invoice amount
+'         If currentAmount >= TargetAmount Then Exit For
+        
+'         ' Extract criteria values from the current row
+'         Dim rowGroup As String: rowGroup = wsInv.Cells(i, "A").Value      ' Column A: Product Group
+'         Dim rowBrand As String: rowBrand = wsInv.Cells(i, "B").Value      ' Column B: Brand
+'         Dim rowLoc As String: rowLoc = wsInv.Cells(i, "C").Value          ' Column C: Location
+'         Dim rowWh As String: rowWh = wsInv.Cells(i, "D").Value            ' Column D: Warehouse
+'         Dim rowBranch As String: rowBranch = wsInv.Cells(i, "E").Value    ' Column E: Branch
+        
+'         ' 3. Apply Multi-Filter Checks (using InStr to handle comma-separated multi-selects)
+'         If (ProductGroups = "" Or InStr(1, ProductGroups, rowGroup, vbTextCompare) > 0) And _
+'            (ProductBrands = "" Or InStr(1, ProductBrands, rowBrand, vbTextCompare) > 0) And _
+'            (Locations = "" Or InStr(1, Locations, rowLoc, vbTextCompare) > 0) And _
+'            (Warehouses = "" Or InStr(1, Warehouses, rowWh, vbTextCompare) > 0) And _
+'            (Branch = "" Or LCase(rowBranch) = LCase(Branch)) Then
+
+'             ' Extract item financial/quantity data
+'             Dim itemID As String: itemID = wsInv.Cells(i, "F").Value      ' Column F: Item ID/SKU
+'             itemQty = wsInv.Cells(i, "G").Value                           ' Column G: Available Qty
+'             itemPrice = wsInv.Cells(i, "H").Value                         ' Column H: Unit Price
+            
+'             If itemQty > 0 And itemPrice > 0 Then
+'                 lineTotal = itemQty * itemPrice
+                
+'                 ' Check if adding the whole lot exceeds the target amount
+'                 If (currentAmount + lineTotal) > TargetAmount Then
+'                     ' Calculate exactly how many pieces are needed to hit the target
+'                     Dim neededAmount As Double
+'                     neededAmount = TargetAmount - currentAmount
+                    
+'                     Dim neededQty As Double
+'                     neededQty = Application.WorksheetFunction.RoundUp(neededAmount / itemPrice, 0)
+                    
+'                     ' If available stock covers the needed partial quantity
+'                     If neededQty <= itemQty Then
+'                         itemQty = neededQty
+'                         lineTotal = itemQty * itemPrice
+'                     End If
+'                 End If
+                
+'                 ' Update total invoice accumulator
+'                 currentAmount = currentAmount + lineTotal
+'                 itemCount = itemCount + 1
+                
+'                 ' Resize array and store the selected item data
+'                 ReDim Preserve selectedItems(1 To 4, 1 To itemCount)
+'                 selectedItems(1, itemCount) = itemID      ' SKU
+'                 selectedItems(2, itemCount) = itemQty     ' Quantity to pull
+'                 selectedItems(3, itemCount) = itemPrice   ' Price
+'                 selectedItems(4, itemCount) = lineTotal   ' Total for line
+'             End If
+            
+'         End If
+'     Next i
+    
+'     ' Return the populated array back to the calling sub
+'     If itemCount > 0 Then
+'         AutoSelectInvoiceItems = selectedItems
+'     Else
+'         AutoSelectInvoiceItems = Empty
+'     End If
+    
+' End Function
+
+' Sub CreateInvoice()
+'     Dim invoiceData As Variant
+'     Dim wsInvoice As Worksheet
+'     Dim targetAmt As Double
+'     Dim i As Long
+    
+'     Set wsInvoice = ThisWorkbook.Sheets("Invoice")
+'     targetAmt = 5000.00 ' Your target invoice total amount
+    
+'     ' Pass comma-separated strings for multi-select arguments
+'     invoiceData = AutoSelectInvoiceItems(targetAmt, _
+'                                          "Electronics,Appliances", _
+'                                          "Sony,Samsung", _
+'                                          "North,East", _
+'                                          "WH-01,WH-02", _
+'                                          "Main Branch")
+                                         
+'     ' Check if items were found
+'     If IsEmpty(invoiceData) Then
+'         MsgBox "No items matched the criteria or stock is empty.", vbExclamation
+'         Exit Sub
+'     End If
+    
+'     ' Clear old invoice lines (assuming rows 5 onwards are item rows)
+'     wsInvoice.Rows("5:100").ClearContents
+    
+'     ' Write the array data down onto the invoice template
+'     For i = 1 To UBound(invoiceData, 2)
+'         wsInvoice.Cells(4 + i, "A").Value = invoiceData(1, i) ' Item ID
+'         wsInvoice.Cells(4 + i, "B").Value = invoiceData(2, i) ' Qty Allocated
+'         wsInvoice.Cells(4 + i, "C").Value = invoiceData(3, i) ' Price
+'         wsInvoice.Cells(4 + i, "D").Value = invoiceData(4, i) ' Total
+'     Next i
+    
+'     MsgBox "Invoice populated successfully!", vbInformation
+' End Sub
+
+    
