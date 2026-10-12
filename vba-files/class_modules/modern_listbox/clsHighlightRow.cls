@@ -28,10 +28,12 @@ End Sub
 Public Property Let InitializedCorrectly(newInitializedCorrectly As Boolean)
     m_InitializedCorrectly = True
 End Property
+
 Public Property Set parentFrame(newParentFrame As clsParentFrameManager)
     Set m_parentFrame = newParentFrame
     Set m_controlAccessors.parentFrame = newParentFrame
 End Property
+
 Public Property Set settings(argSettings As clsListBoxSettings)
     Set m_settings = argSettings
 End Property
@@ -43,7 +45,6 @@ Public Sub ApplyHighlight(visibleRecords As visibleRecordRange, rowNumbers As Ob
     Dim row As Long: row = 1
     Dim i As Long
     For i = visibleRecords.Start To visibleRecords.end
-        debug.print "rowNumbers.Exists(i) =" & rowNumbers.Exists(i) 
         If rowNumbers.Exists(i) Then
             Call SetCheck(row, checkOn:=True)
             Call SetRowHighlight(row, turnOn:=True)
@@ -55,8 +56,6 @@ Public Sub ApplyHighlight(visibleRecords As visibleRecordRange, rowNumbers As Ob
     Next i
 End Sub
 '
-
-
 Public Sub SetCheckHeader(ByVal checkOn As Boolean)
     m_controlAccessors.GetCheckLabelHeader().caption = IIf(checkOn = True, ChrW(80), "") ' myicon checkbox => ChrW(&HE041)
 End Sub

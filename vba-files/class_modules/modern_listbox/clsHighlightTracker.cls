@@ -14,7 +14,6 @@ Option Explicit
 ' YouTube Video: https://youtu.be/QYW1SlKfKdM
 ' Description: Tracks the rows which are currently selected
 
-
 Private Const NO_ROW_SET As Long = -1
 Private m_SelectedItems As Object
 ' Private m_SelectedItemsDictionary As Dictionary
@@ -64,6 +63,7 @@ Public Sub ClearAll()
     Set m_selecteditems = CreateObject("Scripting.Dictionary")
     m_SelectedItems.RemoveAll
 End Sub
+
 Public Sub SelectAll(data As Variant, recordCount As Long)
     Set m_selecteditems = CreateObject("Scripting.Dictionary")
     m_SelectedItems.RemoveAll
@@ -161,10 +161,10 @@ End Sub
 
 Private Sub selectRowMulti(record As recordDetails)
     If m_SelectedItems.Exists(record.ID) = True Then
-        Call m_SelectedItems.Remove(record.ID)
+        m_SelectedItems.Remove record.ID
     Else
-        MsgBox "record.ID=" & record.ID & " , check exist=" &  m_SelectedItems.Exists(record.ID) & ", record.realRowPosition=" & record.realRowPosition
-        Call m_SelectedItems.Add(record.ID, record.realRowPosition)
+        ' MsgBox "record.ID=" & record.ID & " , check exist=" &  m_SelectedItems.Exists(record.ID) & ", record.realRowPosition=" & record.realRowPosition
+        m_SelectedItems.Add record.ID, record.realRowPosition
     End If
 End Sub
 

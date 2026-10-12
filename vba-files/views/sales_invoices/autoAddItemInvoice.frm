@@ -18,16 +18,11 @@ Option Explicit
 Private WithEvents m_modernListbox As clsModernListbox
 Private WithEvents m_brandModernListbox As clsModernListbox
 
+' Private m_modernListbox As clsModernListbox
+' Private m_brandModernListbox As clsModernListbox
+
 Private m_displayData As Boolean
 Private m_brandDisplayData As Boolean
-
-Private Sub brandListboxFrame_Click()
-
-End Sub
-
-Private Sub pgroupListboxFrame_Click()
-
-End Sub
 
 Private Sub save_Click()
 
@@ -76,7 +71,7 @@ Private Sub m_brandModernListbox_ItemSelected(dataRow As Long)
     arr = m_brandModernListbox.GetRow(dataRow)
     Dim brandId As Integer
     brandId = CInt(MID(arrayRowToString(arr, 1), 1, 3))
-    ' MsgBox "dataRow=" & dataRow & "=>arrayRowToString= " & arrayRowToString(arr, 1) & ",brandId = " & brandId
+    MsgBox "dataRow=" & dataRow & "=>arrayRowToString= " & arrayRowToString(arr, 1) & ",brandId = " & brandId
     ' Call form.Fill(arr)
     ' form.show
 End Sub
@@ -109,7 +104,9 @@ Private Sub UserForm_Initialize()
     '     SuccessColor:="#22ab2b"
     ' tbox.clasBox Me, "Border"
     ' cBtn.classButton Me
-
+    
+    ' Set m_modernlistbox = New clsModernListBox 
+    ' Set m_brandModernListbox = New clsModernListbox
     'Define worksheet
     Dim ws_lg, ws_setting, ws_loc, ws_branch, ws_pgroup, ws_brand, ws_add_invoice As Worksheet
     Set ws_loc = ThisWorkbook.Sheets("Location")
@@ -188,7 +185,7 @@ Private Sub UserForm_Initialize()
     Next i
     Me.brand = rngBrand.Cells(1) ' Add the first item again at the end
 
-      ' OptionMulti.Value = True
+    ' OptionMulti.Value = True
     ' CheckBoxHover.Value = True
     ' checkboxScrollbars.Value = False
     ' checkboxSelectOn.Value = True
@@ -235,12 +232,9 @@ Private Sub UserForm_Initialize()
 
     ' Show controls
     Call ShowControlSection
-    
+
     ' Set Userform to screen size
-
-
 End Sub
-
 
 ' HELPER
 Private Sub ShowControlSection(Optional turnOn As Boolean = True)
@@ -251,7 +245,6 @@ Private Sub ShowControlSection(Optional turnOn As Boolean = True)
         End If
     Next c
 End Sub
-
 ' USERFORM CONTROLS EVENTS
 
 ' Display all the selected record in a message box
@@ -266,16 +259,15 @@ Private Sub buttonSelectedData_Click()
     End If
 End Sub
 
-' ' Display the first select record in a message box
+'Display the first select record in a message box
 Private Sub buttonSelectedOne_Click()
     Dim Data As Variant
     Data = m_modernListbox.SelectedItem()
     If IsEmpty(Data) Then
         MsgBox "No record selected"
     Else
-            MsgBox arrayRowToString(Data, 1)
+        MsgBox arrayRowToString(Data, 1)
     End If
-
 End Sub
 
 ' Private Sub buttonUpdateHeight_Click()
@@ -373,7 +365,6 @@ End Sub
 ' Private Sub OptionSingle_Click()
 '     m_modernListbox.multiSelect = IIf(OptionSingle, fmMultiSelectSingle, fmMultiSelectExtended)
 ' End Sub
-
 
 ' PROPERTIES OF THE USERFORM
 

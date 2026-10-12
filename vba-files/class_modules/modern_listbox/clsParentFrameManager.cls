@@ -59,10 +59,7 @@ Public Sub InitializeFrame(settings As clsListBoxSettings, listbox As clsModernL
     
 End Sub
 
-
 Private Function CreateNewParentFrame(myParentFrame As frame) As MSForms.frame
-
-
     With myParentFrame
         .Visible = False
        ' Set CreateNewParentFrame = .Parent.Controls.Add("Forms.Frame.1", "parentFrame", True)
@@ -72,5 +69,4 @@ Private Function CreateNewParentFrame(myParentFrame As frame) As MSForms.frame
         CreateNewParentFrame.width = .width
         CreateNewParentFrame.Height = .Height
     End With
-
 End Function

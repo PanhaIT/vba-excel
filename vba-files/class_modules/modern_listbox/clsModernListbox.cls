@@ -304,6 +304,7 @@ Public Sub Clear()
     Call RemovePaginationButtons
     Call RemovePaginationArrows
     Call EnableSearchBox(False)
+    
 End Sub
 
 ' END OF METHODS
