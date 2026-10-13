@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmCustomer 
    Caption         =   "Add Customer"
-   ClientHeight    =   8910.001
+   ClientHeight    =   10920
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   21045
+   ClientWidth     =   23760
    OleObjectBlob   =   "frmCustomer.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -29,6 +29,22 @@ End Sub
 Private Sub Cancel_Click()
     resetField
     Unload Me
+End Sub
+
+Private Sub iconCancel_Click()
+    resetField
+    Unload Me
+End Sub
+
+Private Sub iconReset_Click()
+   resetField
+End Sub
+
+Private Sub iconSave_Click()
+    tbox.TxtControl
+    If textControl = True Then
+        SaveCustomer id
+    End If
 End Sub
 
 Private Sub resetField()
@@ -57,7 +73,7 @@ Private Sub UserForm_Activate()
 
     Set ws_cus_list = Sheets("CustomerList")
     Set customerList = ws_cus_list.Range("customer_list")
-    LastRow = ws_cus_list.Cells(Rows.Count, "C").End(xlUp).Row + 1
+    LastRow = ws_cus_list.Cells(Rows.Count, "C").end(xlUp).row + 1
 
     i = 1
     Do Until WorksheetFunction.CountA(customerList.Rows(i)) = 0
@@ -71,7 +87,7 @@ Private Sub UserForm_Activate()
 End Sub
 
 Private Sub UserForm_Initialize()
-    TxtColor ForeColor:="#43545F", _
+    TxtColor forecolor:="#43545F", _
         EnterColor:="#005ea2", _
         TitleColor:="#ababab", _
         AlertColor:="#f72111", _

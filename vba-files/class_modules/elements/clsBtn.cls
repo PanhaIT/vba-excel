@@ -103,8 +103,8 @@ End Sub
 
 Sub ButtonDesign(ctrl As Object)
     With ctrl
-        .Font.Size = 10
-        .Font.Name = "Poppins Medium"
+        .Font.Size = 11
+        .Font.Name = "Khmer OS Battambang"
         .BackStyle = fmBackStyleTransparent
         .BorderStyle = fmBorderStyleNone
         .PicturePosition = 12

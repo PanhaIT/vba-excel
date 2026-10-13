@@ -14,9 +14,12 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Option Explicit
 Private WithEvents m_modernListbox As clsModernListbox
+Attribute m_modernListbox.VB_VarHelpID = -1
 Private WithEvents m_brandModernListbox As clsModernListbox
+Attribute m_brandModernListbox.VB_VarHelpID = -1
 
 ' Private m_modernListbox As clsModernListbox
 ' Private m_brandModernListbox As clsModernListbox
@@ -24,8 +27,32 @@ Private WithEvents m_brandModernListbox As clsModernListbox
 Private m_displayData As Boolean
 Private m_brandDisplayData As Boolean
 
-Private Sub save_Click()
+Private Sub iconCancel_Click()
+    resetField
+     If Not m_brandModernListbox Is Nothing Then
+        Call m_brandModernListbox.ClearHover
+    End If
+    Hide
+End Sub
 
+Private Sub iconReset_Click()
+   resetField
+End Sub
+
+Private Sub iconSave_Click()
+    resetField
+    If Not m_brandModernListbox Is Nothing Then
+        Call m_brandModernListbox.ClearHover
+    End If
+    Hide
+End Sub
+
+Private Sub save_Click()
+    resetField
+    If Not m_brandModernListbox Is Nothing Then
+        Call m_brandModernListbox.ClearHover
+    End If
+    Hide
 End Sub
 
 Private Sub reset_Click()
@@ -33,6 +60,10 @@ Private Sub reset_Click()
 End Sub
 
 Private Sub Cancel_Click()
+    resetField
+    If Not m_brandModernListbox Is Nothing Then
+        Call m_brandModernListbox.ClearHover
+    End If
     Hide
 End Sub
 
@@ -105,7 +136,7 @@ Private Sub UserForm_Initialize()
     ' tbox.clasBox Me, "Border"
     ' cBtn.classButton Me
     
-    ' Set m_modernlistbox = New clsModernListBox 
+    ' Set m_modernlistbox = New clsModernListBox
     ' Set m_brandModernListbox = New clsModernListbox
     'Define worksheet
     Dim ws_lg, ws_setting, ws_loc, ws_branch, ws_pgroup, ws_brand, ws_add_invoice As Worksheet

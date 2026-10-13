@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmAddShipTo
    ClientHeight    =   5760
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   13005
+   ClientWidth     =   13215
    OleObjectBlob   =   "frmAddShipTo.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -16,6 +16,22 @@ Attribute VB_Exposed = False
 
 
 Option Explicit
+
+Private Sub iconCancel_Click()
+    resetField
+    Unload Me
+End Sub
+
+Private Sub iconReset_Click()
+   resetField
+End Sub
+
+Private Sub iconSave_Click()
+    tbox.TxtControl
+    If textControl = True Then
+        SaveCustomer id
+    End If
+End Sub
 
 Private Sub reset_Click()
    resetField
@@ -45,7 +61,7 @@ Private Sub UserForm_Activate()
 End Sub
 
 Private Sub UserForm_Initialize()
-    TxtColor ForeColor:="#43545F", _
+    TxtColor forecolor:="#43545F", _
         EnterColor:="#005ea2", _
         TitleColor:="#ababab", _
         AlertColor:="#f72111", _

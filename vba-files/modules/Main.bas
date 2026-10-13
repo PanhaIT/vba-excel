@@ -41,11 +41,11 @@ Public  Sub listBoxAutoAddItemInvoice()
     Sheets("Output").Range("A1").CurrentRegion.Offset(1).ClearContents
     Call ArrayToRange(selectedData, Sheets("Output").Range("A2"))
     
-    ' Dim slectedDataBrands As Variant
-    ' slectedDataBrands = frm.getSelectedItemsBrands()
-    ' If IsEmpty(slectedDataBrands) = True Then Exit Sub
+    Dim slectedDataBrands As Variant
+    slectedDataBrands = frm.getSelectedItemsBrands()
+    If IsEmpty(slectedDataBrands) = True Then Exit Sub
 
-    ' Sheets("Output").Range("B1").CurrentRegion.Offset(1).ClearContents
-    ' Call ArrayToRange(slectedDataBrands, Sheets("Output").Range("B2"))
+    Sheets("Output").Range("B1").CurrentRegion.Offset(1).ClearContents
+    Call ArrayToRange(slectedDataBrands, Sheets("Output").Range("B2"))
 
 End Sub

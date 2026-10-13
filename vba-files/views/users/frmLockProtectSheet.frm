@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmLockProtectSheet 
    Caption         =   "Unlock And Unprotect Sheet"
-   ClientHeight    =   6285
+   ClientHeight    =   6810
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   9495.001
+   ClientWidth     =   10530
    OleObjectBlob   =   "frmLockProtectSheet.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -14,39 +14,61 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Option Explicit
 
-Private Sub reset_Click()
-    With frmLockProtectSheet
-        .lock_password              = ""
-        .add_inv_adj.Value          = False
-        .add_purchase_bill.Value    = False
-        .add_sales_invoice.Value    = False
-        .add_quotation.Value        = False
-    End With
-End Sub
-
-Private Sub Cancel_Click()
-    With frmLockProtectSheet
-        .lock_password              = ""
-        .add_inv_adj.Value          = False
-        .add_purchase_bill.Value    = False
-        .add_sales_invoice.Value    = False
-        .add_quotation.Value        = False
-    End With
+Private Sub iconCancel_Click()
+    resetField
     Unload Me
 End Sub
 
+Private Sub iconReset_Click()
+   resetField
+End Sub
+
+Private Sub iconSave_Click()
+    tbox.TxtControl
+    If textControl = True Then
+        saveForm
+    End If
+End Sub
+
+Private Sub reset_Click()
+    resetField
+End Sub
+
+Private Sub Cancel_Click()
+    resetField
+    Unload Me
+End Sub
+
+Private Sub resetField()
+    With frmLockProtectSheet
+           .lock_password = ""
+           .add_inv_adj.Value = False
+           .add_purchase_bill.Value = False
+           .add_sales_invoice.Value = False
+           .add_quotation.Value = False
+       End With
+End Sub
+
 Private Sub save_Click()
+       tbox.TxtControl
+        If textControl = True Then
+            saveForm
+        End If
+End Sub
+
+Private Sub saveForm()
     Dim activeWorkbook As Workbook
     Dim ws_add_adj, ws_add_inv, ws_add_pb, ws_add_quote, ws_add_rp As Worksheet
 
-    Set activeWorkbook  = Workbooks("index.xlsm")
-    Set ws_add_adj      = activeWorkbook.Sheets("InventoryAdj")
-    Set ws_add_inv      = activeWorkbook.Sheets("AddInvoice")
-    Set ws_add_pb       = activeWorkbook.Sheets("AddPurchaseBill")
-    Set ws_add_quote    = activeWorkbook.Sheets("AddQuotation")
-    Set ws_add_rp       = activeWorkbook.Sheets("AddReceivePayment")
+    Set activeWorkbook = Workbooks("index.xlsm")
+    Set ws_add_adj = activeWorkbook.Sheets("InventoryAdj")
+    Set ws_add_inv = activeWorkbook.Sheets("AddInvoice")
+    Set ws_add_pb = activeWorkbook.Sheets("AddPurchaseBill")
+    Set ws_add_quote = activeWorkbook.Sheets("AddQuotation")
+    Set ws_add_rp = activeWorkbook.Sheets("AddReceivePayment")
 
     ' 1. Unprotect sheet to make structural changes
     If (Me.lock_password = "kscm@2026") Then
@@ -103,7 +125,7 @@ Private Sub UserForm_Activate()
 End Sub
 
 Private Sub UserForm_Initialize()
-    TxtColor ForeColor:="#43545F", _
+    TxtColor forecolor:="#43545F", _
         EnterColor:="#005ea2", _
         TitleColor:="#ababab", _
         AlertColor:="#f72111", _
