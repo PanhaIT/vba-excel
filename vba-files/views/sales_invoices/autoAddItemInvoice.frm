@@ -14,12 +14,9 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-
 Option Explicit
 Private WithEvents m_modernListbox As clsModernListbox
-Attribute m_modernListbox.VB_VarHelpID = -1
 Private WithEvents m_brandModernListbox As clsModernListbox
-Attribute m_brandModernListbox.VB_VarHelpID = -1
 
 ' Private m_modernListbox As clsModernListbox
 ' Private m_brandModernListbox As clsModernListbox
