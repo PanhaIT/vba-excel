@@ -44,12 +44,12 @@ End Sub
 
 Private Sub resetField()
     With frmLockProtectSheet
-           .lock_password = ""
-           .add_inv_adj.Value = False
-           .add_purchase_bill.Value = False
-           .add_sales_invoice.Value = False
-           .add_quotation.Value = False
-       End With
+        .lock_password = ""
+        .add_inv_adj.Value = False
+        .add_purchase_bill.Value = False
+        .add_sales_invoice.Value = False
+        .add_quotation.Value = False
+    End With
 End Sub
 
 Private Sub save_Click()

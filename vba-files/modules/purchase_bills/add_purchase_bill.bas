@@ -395,8 +395,7 @@ Private Sub SavePurchaseBill()
                             stockAvailableInvGroupTotal        = item_row.Cells(a,29)
 
                             'Updaet product cost
-                            Set productRange     = ws_product.Range("B8:V8")
-                            last_product_id      = ws_product.Cells(Rows.Count, "B").End(xlUp).Row
+                            last_product_id      = ws_product.Cells(Rows.Count, "C").End(xlUp).Row
 
                             Set proCostHisRange  = ws_pro_cost_his.Range("C8:L8")
                             last_pro_cost_his    = ws_pro_cost_his.Cells(Rows.Count,"C").End(xlUp).Row - 6
@@ -416,11 +415,12 @@ Private Sub SavePurchaseBill()
                                 proCostHisRange.Cells(last_pro_cost_his,12) = createdDate ' Created
                                 proCostHisRange.Cells(last_pro_cost_his,13) = 1' Created By
                                 proCostHisRange.Cells(last_pro_cost_his,14) = 1 ' Status
-
+                                
                                 For j = 8 To last_product_id
-                                    If (ws_product.Cells(j,2).Value * 1 = productId * 1) Then
+                                    If (CInt(ws_product.Cells(j,"C").Value) = productId ) Then
                                         'update unit cost product
-                                        ws_product.Cells(j,13) = newUnitCost * conversion 'total qty sale 
+                                        ws_product.Cells(j,"P") = newUnitCost * conversion 'total qty sale 
+                                        ' ws_product.Cells(j,13) = newUnitCost * conversion 'total qty sale 
                                         Exit For
                                     End If
                                 Next j
