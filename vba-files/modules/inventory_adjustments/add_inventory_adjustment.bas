@@ -104,6 +104,7 @@ Public Sub SaveAdjustStock()
         End If
 
         Run resetAllFilter()
+        Run resetWorkSheetsFilter()
     
         If (checkRefStock = "exist") Then
             MsgBoxW ("This invoice stock already saved.")

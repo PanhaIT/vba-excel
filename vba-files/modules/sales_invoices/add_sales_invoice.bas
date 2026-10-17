@@ -132,6 +132,7 @@ Private Sub SaveSaleInvoice()
 
         If (check_access = 1) Then
             Run resetAllFilter()
+            Run resetWorkSheetsFilter()
 
             'Sales Invoice Status=> -1 = Edit, 1  = issue, 2  = fulfilled ,3  = partial
             ' statusInvoice = -1

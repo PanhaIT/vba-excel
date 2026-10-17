@@ -145,7 +145,8 @@ Private Sub SavePurchaseBill()
         End If
 
         Run resetAllFilter()
-
+        Run resetWorkSheetsFilter()
+        
         Set ws_product          = activeWorkbook.Sheets("ProductList")
         Set rngProductList      = ws_product.Range("C8:AA" & ws_product.Cells(Rows.Count,"C").End(xlUp).Row)
         Set ws_pro_cost_his     = activeWorkbook.Sheets("ProductCostHistory")

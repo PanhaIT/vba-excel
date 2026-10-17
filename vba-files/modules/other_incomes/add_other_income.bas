@@ -63,7 +63,8 @@ Sub SaveDataOtherIncome()
     totalBalance = 0
     ' MsgBox "totalAmountPaidKh=" & totalAmountPaidKh & ", totalAmountPaidUsd=" & totalAmountPaidUsd & ", totalAmountPaid=" & totalAmountPaid & ", totalBalance=" & totalBalance
     ' Exit Sub
-
+    Run resetAllFilter()
+    Run resetWorkSheetsFilter()
     ' Run resetWorkSheetsFilter()
     ' If totalAmountPaid > totalAmountDue Then
     '     MsgBox "Total amount paid is bigger than total amount due, please try again."

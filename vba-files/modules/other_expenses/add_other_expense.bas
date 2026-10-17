@@ -31,7 +31,8 @@ Sub SaveOtherExpense()
     totalAmountPaidKh    = exp.Range("c_exp_amount_kh_paid").Value
     totalAmountPaidUsd   = exp.Range("c_exp_amount_en_paid").Value
 
-    Run resetWorksheetsFilter()
+    Run resetAllFilter()
+    Run resetWorkSheetsFilter()
 
     If ActiveSheet.Range("c_exp_branch_id").Value = "" Or ActiveSheet.Range("c_expense_type_id").Value = "" Or ActiveSheet.Range("c_exp_vendor_id").Value = "" Or ActiveSheet.Range("c_exp_module_types_option").Value = "" Or ActiveSheet.Range("c_exp_current_date").Value = "" And (ActiveSheet.Range("c_exp_amount_kh_paid").Value = 0 Or ActiveSheet.Range("c_exp_amount_en_paid").Value = 0) Then
         MsgBox "Please select or input require field, try again."

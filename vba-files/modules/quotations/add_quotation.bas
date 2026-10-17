@@ -157,6 +157,8 @@ Public Sub AddQuotation()
         End If
 
         Run resetAllFilter()
+        Run resetWorkSheetsFilter()
+
         quotStatus = quotStatus * 1
 
         If quotStatus > 0 Then

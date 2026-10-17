@@ -198,7 +198,9 @@ Sub SaveReceivePayment()
     totalChangeEn         = 0 'ws_rp.Range("rp_amount_change_en").Value
     totalBalance          = ws_rp.Range("rp_total_balance").Value 'rp_total_balance
     createdDate           = Format(Now(), "yyyy/mm/dd hh:mm:ss")
+
     Run resetAllFilter()
+    Run resetWorkSheetsFilter()
 
     If totalDiscount > totalAmountDue Then
         MsgBox "Total discount is bigger than total amount due, please try again."
