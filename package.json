@@ -2,7 +2,7 @@
     "name": "xvba-app",
     "version": "1.0.0",
     "description": "A XVBA App",
-    "main": "index.js",
+    "main": "index.xlsm",
     "author": "LocalSmart",
     "license": "ISC",
     "dependencies": {

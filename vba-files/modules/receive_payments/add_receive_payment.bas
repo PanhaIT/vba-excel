@@ -167,9 +167,9 @@ Sub SaveReceivePayment()
         exchangeRate          = 4000
     End If
 
-    totalAmountDue        = ws_rp.Range("rp_amount_due").Value
-    totalAmountPaid       = ws_rp.Range("rp_total_paid").Value
-    totalAmountPaidBefore = ws_rp.Range("rp_amount_paid_before").Value
+    totalAmountDue        = FormatNumber(ws_rp.Range("rp_amount_due").Value, 4, , , vbTrue)
+    totalAmountPaid       = FormatNumber(ws_rp.Range("rp_total_paid").Value, 4, , , vbTrue)
+    totalAmountPaidBefore = FormatNumber(ws_rp.Range("rp_amount_paid_before").Value, 4, , , vbTrue)
     If (totalAmountPaid > totalAmountDue) Then 
         If (rpCurrencyId = 1) Then 'Dollar
             totalAmountPaidKh     = 0
@@ -181,11 +181,11 @@ Sub SaveReceivePayment()
         totalAmountPaid       = totalAmountDue
     Else
         totalAmountPaidKh     = ws_rp.Range("rp_amount_paid_kh").Value
-        totalAmountPaidEn     = ws_rp.Range("rp_amount_paid_en").Value
+        totalAmountPaidEn     = FormatNumber(ws_rp.Range("rp_amount_paid_en").Value, 4, , , vbTrue)
     End If
 
     totalDiscounKh        = ws_rp.Range("rp_discount_kh").Value
-    totalDiscounEn        = ws_rp.Range("rp_discount_en").Value
+    totalDiscounEn        = FormatNumber(ws_rp.Range("rp_discount_en").Value, 4, , , vbTrue)
 
     If (rpCurrencyId = 2) Then 'Dollar
         totalDiscount     = totalDiscounEn * exchangeRate + totalDiscounKh
@@ -193,10 +193,10 @@ Sub SaveReceivePayment()
         totalDiscount     = totalDiscounEn + totalDiscounKh / exchangeRate
     End If
 
-    grandTotalPaid        = totalAmountPaid + totalDiscount
+    grandTotalPaid        = FormatNumber(totalAmountPaid + totalDiscount, 4, , , vbTrue)
     totalChangeKh         = 0 'ws_rp.Range("rp_amount_change_kh").Value
     totalChangeEn         = 0 'ws_rp.Range("rp_amount_change_en").Value
-    totalBalance          = ws_rp.Range("rp_total_balance").Value 'rp_total_balance
+    totalBalance          = FormatNumber(ws_rp.Range("rp_total_balance").Value, 4, , , vbTrue) 'rp_total_balance
     createdDate           = Format(Now(), "yyyy/mm/dd hh:mm:ss")
 
     Run resetAllFilter()

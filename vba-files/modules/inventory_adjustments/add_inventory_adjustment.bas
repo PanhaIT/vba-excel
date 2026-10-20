@@ -226,8 +226,8 @@ Public Sub SaveAdjustStock()
                         proCostHisRange.Cells(last_pro_cost_his,6)  = productName  ' Product Name
                         proCostHisRange.Cells(last_pro_cost_his,7)  = Application.VLookup(CInt(productId), rngProductList, 8, False)  ' Product Uom
                         proCostHisRange.Cells(last_pro_cost_his,8)  = smallUomVal  ' Small Value Uom
-                        proCostHisRange.Cells(last_pro_cost_his,9)  = costByUom * conversion  ' Old Cost
-                        proCostHisRange.Cells(last_pro_cost_his,10) = newUnitCost * conversion   ' New Cost
+                        proCostHisRange.Cells(last_pro_cost_his,9)  = FormatNumber(costByUom * conversion, 4, , , vbTrue)  ' Old Cost
+                        proCostHisRange.Cells(last_pro_cost_his,10) = FormatNumber(newUnitCost * conversion, 4, , , vbTrue)   ' New Cost
                         proCostHisRange.Cells(last_pro_cost_his,11) = "Inventory Adjust"  ' Type
                         proCostHisRange.Cells(last_pro_cost_his,12) = createdDate ' Created
                         proCostHisRange.Cells(last_pro_cost_his,13) = 1' Created By
@@ -236,7 +236,7 @@ Public Sub SaveAdjustStock()
                         For j = 8 To last_product_id
                             If CInt(ws_product.Cells(j,"C").Value) = CInt(productId) Then
                                 'update unit cost product
-                                ws_product.Cells(j,"P") = newUnitCost * conversion 'total qty sale 
+                                ws_product.Cells(j,"P") = FormatNumber(newUnitCost * conversion, 4, , , vbTrue) 'total qty sale 
                                 Exit For
                             End If
                         Next j
@@ -245,20 +245,20 @@ Public Sub SaveAdjustStock()
                     qtyOnHandSmall  = 0
                     qtyOnHand       = 0
                     If (smallUomVal > 0) Then
-                        bigQtyAdj  = Format(qtyAdjustSmall / smallUomVal , "0.000000000") ' bigQtyAdj  = bigQtyAdj /smallUomVal/ conversion
+                        bigQtyAdj  = FormatNumber(qtyAdjustSmall / smallUomVal, 9, , , vbTrue) ' bigQtyAdj  = bigQtyAdj /smallUomVal/ conversion
                     End If
 
                     If (newUnitCost > 0) Then
                         unitCost = newUnitCost
-                        totalCost = Format(bigQtyAdj * newUnitCost,"0.00")
+                        totalCost = FormatNumber(bigQtyAdj * newUnitCost, 4, , , vbTrue)
                     Else
                         unitCost = costByUom
-                        totalCost = Format(bigQtyAdj * unitCostBigUom,"0.00")
+                        totalCost = FormatNumber(bigQtyAdj * unitCostBigUom, 4, , , vbTrue)
                     End If
                     
-                    unitCost    = Format(unitCost,"0.00")
-                    newUnitCost = Format(newUnitCost,"0.00")
-                    costByUom   = Format(costByUom,"0.00")
+                    unitCost    = FormatNumber(unitCost, 4, , , vbTrue)
+                    newUnitCost = FormatNumber(newUnitCost, 4, , , vbTrue)
+                    costByUom   = FormatNumber(costByUom, 4, , , vbTrue)
 
                     If (qtyAdjustSmall < 0 ) Then 
                         totalCost = totalCost * -1

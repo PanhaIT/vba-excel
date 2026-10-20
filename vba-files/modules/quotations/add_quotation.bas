@@ -99,13 +99,13 @@ Public Sub AddQuotation()
         vatSettingId  = 1
     End If
     vatCal            = ActiveSheet.Range("quot_vat_cal_id").Value
-    totalVat          = Format(ActiveSheet.Range("quot_total_vat").Value,"0.00")
+    totalVat          = FormatNumber(ActiveSheet.Range("quot_total_vat").Value, 4, , , vbTrue)
 
-    totalDeposit      = Format(ActiveSheet.Range("quot_deposit").Value,"0.00")
-    totalDiscount     = Format(ActiveSheet.Range("quot_discount").Value,"0.00")
-    totalAmount       = Format(ActiveSheet.Range("quot_sub_total_amount").Value,"0.00")
-    quotStatus        = Format(ActiveSheet.Range("quot_status").Value,"0.00")
-    totalBalance      = Format(ActiveSheet.Range("quot_total_amount").Value,"0.00")
+    totalDeposit      = FormatNumber(ActiveSheet.Range("quot_deposit").Value, 4, , , vbTrue)
+    totalDiscount     = FormatNumber(ActiveSheet.Range("quot_discount").Value, 4, , , vbTrue)
+    totalAmount       = FormatNumber(ActiveSheet.Range("quot_sub_total_amount").Value, 4, , , vbTrue)
+    quotStatus        = FormatNumber(ActiveSheet.Range("quot_status").Value, 4, , , vbTrue)
+    totalBalance      = FormatNumber(ActiveSheet.Range("quot_total_amount").Value, 4, , , vbTrue)
 
     isApprove            = 1 '0:approved,1:not approve
     isClose              = 0 '0:close,1:open
@@ -114,11 +114,11 @@ Public Sub AddQuotation()
     approvedBy           = ActiveSheet.Range("quot_seller").Value
 
     If (discountTypeId=1) Then 'discount amount
-        discountAmount   = Format(ActiveSheet.Range("quot_discount_amount").Value,"0.00")
+        discountAmount   = FormatNumber(ActiveSheet.Range("quot_discount_amount").Value, 4, , , vbTrue)
         discountPercent = 0
     ElseIf (discountTypeId=2) Then 'discount percent
         discountAmount  = 0
-        discountPercent  = Format(ActiveSheet.Range("quot_discount_percent").Value,"0.00")
+        discountPercent  = FormatNumber(ActiveSheet.Range("quot_discount_percent").Value, 4, , , vbTrue)
     Else 'no discount
         discountAmount  = 0
         discountPercent = 0
@@ -244,26 +244,26 @@ Public Sub AddQuotation()
                             expiredDate         = item_row.Cells(a,10)
                             newUnitPrice        = item_row.Cells(a,12)
                             unitPriceByUom      = item_row.Cells(a,13)
-                            disItem             = Format(item_row.Cells(a,15),"0.00")
-                            totalPrice          = Format(item_row.Cells(a,17),"0.00")
+                            disItem             = FormatNumber(item_row.Cells(a,15), 4, , , vbTrue)
+                            totalPrice          = FormatNumber(item_row.Cells(a,17), 4, , , vbTrue)
                             remark              = item_row.Cells(a,18)
                             If (item_row.Cells(a,19)>0) Then
                                 conversion      = item_row.Cells(a,19)
                             End If
                             smallValUom         = item_row.Cells(a,20)
-                            totalDisItem        = Format(item_row.Cells(a,21),"0.00")
-                            unitCostByUom       = Format(item_row.Cells(a,22),"0.00")
-                            ' unitCostBigUom      = Format(item_row.Cells(a,23),"0.00")
-                            unitPriceBigUom     = Format(item_row.Cells(a,24),"0.00")
+                            totalDisItem        = FormatNumber(item_row.Cells(a,21), 4, , , vbTrue)
+                            unitCostByUom       = FormatNumber(item_row.Cells(a,22), 4, , , vbTrue)
+                            ' unitCostBigUom      = Format(item_row.Cells(a,23), 4, , , vbTrue)
+                            unitPriceBigUom     = FormatNumber(item_row.Cells(a,24), 4, , , vbTrue)
                             itemType            = item_row.Cells(a,25) '1 : product, 2:service
 
                             If (newUnitPrice > 0 ) Then 
-                                unitPrice = Format(newUnitPrice, "0.00")
+                                unitPrice = FormatNumber(newUnitPrice, 4, , , vbTrue)
                             Else
-                                unitPrice = Format(unitPriceByUom, "0.00")
+                                unitPrice = FormatNumber(unitPriceByUom, 4, , , vbTrue)
                             End If
                             totalCost          = (qty + qtyFree) * unitCostByUom
-                            totalPriceBeforDis = Format(qty * unitPrice, "0.00")
+                            totalPriceBeforDis = FormatNumber(qty * unitPrice, 4, , , vbTrue)
                             
                             qtyOrder        = (qty + qtyFree) / conversion '(qty + qtyFree) / smallValUom / convertion
                             qtyOrderSmall   = (qty + qtyFree) * (smallValUom / conversion)

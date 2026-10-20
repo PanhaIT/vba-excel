@@ -84,13 +84,13 @@ Private Sub SaveSaleInvoice()
     End If
     
     vatCal            = ActiveSheet.Range("invoice_vat_cal_id").Value
-    totalVat          = Format(ActiveSheet.Range("invoice_total_vat").Value,"0.00")
+    totalVat          = FormatNumber(ActiveSheet.Range("invoice_total_vat").Value, 4, , , vbTrue)
 
-    totalDeposit      = Format(ActiveSheet.Range("invoice_deposit").Value,"0.00")
-    totalDiscount     = Format(ActiveSheet.Range("invoice_discount").Value,"0.00")
-    totalAmount       = Format(ActiveSheet.Range("invoice_sub_total_amount").Value,"0.00")
-    statusInvoice     = Format(ActiveSheet.Range("invoice_status").Value,"0.00")
-    grandTotalAmount  = Format(ActiveSheet.Range("invoice_total_amount").Value,"0.00")
+    totalDeposit      = FormatNumber(ActiveSheet.Range("invoice_deposit").Value, 4, , , vbTrue)
+    totalDiscount     = FormatNumber(ActiveSheet.Range("invoice_discount").Value, 4, , , vbTrue)
+    totalAmount       = FormatNumber(ActiveSheet.Range("invoice_sub_total_amount").Value, 4, , , vbTrue)
+    statusInvoice     = FormatNumber(ActiveSheet.Range("invoice_status").Value, 4, , , vbTrue)
+    grandTotalAmount  = FormatNumber(ActiveSheet.Range("invoice_total_amount").Value, 4, , , vbTrue)
 
     Set coaDefaultRange = Sheets("ChartAccountDefault").Range("chart_account_default_list2")
     coaSaleDiscount     = Application.VLookup("Sales Discount", coaDefaultRange, 3, False)
@@ -105,6 +105,9 @@ Private Sub SaveSaleInvoice()
     End If
     totalDeposit      = 0
     totalBalance      = totalAmount + totalVat - (totalDiscount + totalDeposit)
+    totalBalance      = FormatNumber(totalBalance, 4, , , vbTrue)
+
+    debug.Print "totalAmount=" & totalAmount & " , grandTotalAmount=" & grandTotalAmount & " , totalBalance=" & totalBalance
 
     Dim activeWorkbook, wbDatabase As Workbook
     Dim ws_product, ws_file_setting As Worksheet
@@ -385,14 +388,14 @@ Private Sub SaveSaleInvoice()
                                 expiredDate         = item_row.Cells(a,10)
                                 newUnitPrice        = item_row.Cells(a,12)
                                 unitPriceByUom      = item_row.Cells(a,13)
-                                disItem             = Format(item_row.Cells(a,15),"0.000")
-                                totalPrice          = Format(item_row.Cells(a,17),"0.000")
+                                disItem             = Format(item_row.Cells(a,15),"0.0000")
+                                totalPrice          = Format(item_row.Cells(a,17),"0.0000")
                                 remark              = item_row.Cells(a,18)
                                 If (item_row.Cells(a,19)>0) Then
                                     conversion      = item_row.Cells(a,19)
                                 End If
                                 smallValUom         = item_row.Cells(a,20)
-                                totalDisItem        = Format(item_row.Cells(a,21),"0.000")
+                                totalDisItem        = Format(item_row.Cells(a,21),"0.0000")
                                 unitCostByUom       = Format(item_row.Cells(a,22),"0.0000")
                                 ' unitCostBigUom      = Format(item_row.Cells(a,23),"0.00")
                                 unitPriceBigUom     = Format(item_row.Cells(a,24),"0.0000")
@@ -404,7 +407,7 @@ Private Sub SaveSaleInvoice()
                                     unitPrice = Format(unitPriceByUom, "0.0000")
                                 End If
                                 totalCost          = (qty + qtyFree) * unitCostByUom
-                                totalPriceBeforDis = Format(qty * unitPrice, "0.000")
+                                totalPriceBeforDis = Format(qty * unitPrice, "0.0000")
 
                                 checkExistItemInvTotal             = item_row.Cells(a,26)
                                 checkExistItemInvTotalDetail       = item_row.Cells(a,27)

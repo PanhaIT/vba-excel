@@ -111,13 +111,13 @@ Private Sub SavePurchaseBill()
     End If
 
     vatCal            = ActiveSheet.Range("pb_vat_cal_id").Value
-    totalVat          = ActiveSheet.Range("pb_total_vat").Value
+    totalVat          = FormatNumber(ActiveSheet.Range("pb_total_vat").Value, 4, , , vbTrue)
 
-    totalDeposit      = ActiveSheet.Range("pb_deposit").Value
-    totalDiscount     = ActiveSheet.Range("pb_discount").Value
-    totalAmount       = ActiveSheet.Range("pb_sub_total_amount").Value
+    totalDeposit      = FormatNumber(ActiveSheet.Range("pb_deposit").Value, 4, , , vbTrue)
+    totalDiscount     = FormatNumber(ActiveSheet.Range("pb_discount").Value, 4, , , vbTrue)
+    totalAmount       = FormatNumber(ActiveSheet.Range("pb_sub_total_amount").Value, 4, , , vbTrue)
     statusPB          = ActiveSheet.Range("pb_status").Value
-    grandTotalAmount  = ActiveSheet.Range("pb_total_amount").Value
+    grandTotalAmount  = FormatNumber(ActiveSheet.Range("pb_total_amount").Value, 4, , , vbTrue)
 
     Set coaDefaultRange = Sheets("ChartAccountDefault").Range("chart_account_default_list2")
 
@@ -133,7 +133,7 @@ Private Sub SavePurchaseBill()
     End If
    
     totalDeposit = 0
-    totalBalance = totalAmount + totalVat - (totalDiscount + totalDeposit)
+    totalBalance = FormatNumber(totalAmount + totalVat - (totalDiscount + totalDeposit), 4, , , vbTrue)
     
     If answer = vbYes And checkDatabaseFile = TRUE Then
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
@@ -433,14 +433,14 @@ Private Sub SavePurchaseBill()
                                 unitCost = unitCostByUoM
                             End If
 
-                            totalAmountItem  = Format(totalCost + totalDisItem,"0.00")
+                            totalAmountItem  = Format(totalCost + totalDisItem,"0.0000")
                             qtyOrder         = (qty + qtyFree) / conversion '(qty + qtyFree) / smallValUoM / conversion
                             qtyOrderSmall    = (qty + qtyFree) * (smallValUoM / conversion)
-                            costOrder        = Format((totalCost / (qty + qtyFree)) , "0.00") 
-                            unitCost         = Format(unitCost,"0.00")
-                            newUnitCost      = Format(newUnitCost,"0.00")
-                            unitCostByUoM    = Format(unitCostByUoM,"0.00")
-                            totalCost        = Format(totalCost,"0.00")   
+                            costOrder        = Format((totalCost / (qty + qtyFree)) , "0.0000") 
+                            unitCost         = Format(unitCost,"0.0000")
+                            newUnitCost      = Format(newUnitCost,"0.0000")
+                            unitCostByUoM    = Format(unitCostByUoM,"0.0000")
+                            totalCost        = Format(totalCost,"0.0000")   
                             ' lotsNumber,expiredDate
                             range_pb.Cells(pb_detail_id, 1)   = pb_detail_id 'id
                             range_pb.Cells(pb_detail_id, 2)   = pb_id 'pb id
