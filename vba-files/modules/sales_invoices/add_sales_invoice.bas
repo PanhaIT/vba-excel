@@ -107,8 +107,6 @@ Private Sub SaveSaleInvoice()
     totalBalance      = totalAmount + totalVat - (totalDiscount + totalDeposit)
     totalBalance      = FormatNumber(totalBalance, 4, , , vbTrue)
 
-    debug.Print "totalAmount=" & totalAmount & " , grandTotalAmount=" & grandTotalAmount & " , totalBalance=" & totalBalance
-
     Dim activeWorkbook, wbDatabase As Workbook
     Dim ws_product, ws_file_setting As Worksheet
     Dim MyFSO As New FileSystemObject
@@ -388,26 +386,26 @@ Private Sub SaveSaleInvoice()
                                 expiredDate         = item_row.Cells(a,10)
                                 newUnitPrice        = item_row.Cells(a,12)
                                 unitPriceByUom      = item_row.Cells(a,13)
-                                disItem             = Format(item_row.Cells(a,15),"0.0000")
-                                totalPrice          = Format(item_row.Cells(a,17),"0.0000")
+                                disItem             = FormatNumber(item_row.Cells(a,15), 4, , , vbTrue)
+                                totalPrice          = FormatNumber(item_row.Cells(a,17), 4, , , vbTrue)
                                 remark              = item_row.Cells(a,18)
                                 If (item_row.Cells(a,19)>0) Then
                                     conversion      = item_row.Cells(a,19)
                                 End If
                                 smallValUom         = item_row.Cells(a,20)
-                                totalDisItem        = Format(item_row.Cells(a,21),"0.0000")
-                                unitCostByUom       = Format(item_row.Cells(a,22),"0.0000")
+                                totalDisItem        = FormatNumber(item_row.Cells(a,21), 4, , , vbTrue)
+                                unitCostByUom       = FormatNumber(item_row.Cells(a,22), 4, , , vbTrue)
                                 ' unitCostBigUom      = Format(item_row.Cells(a,23),"0.00")
-                                unitPriceBigUom     = Format(item_row.Cells(a,24),"0.0000")
+                                unitPriceBigUom     = FormatNumber(item_row.Cells(a,24), 4, , , vbTrue)
                                 itemType            = item_row.Cells(a,25) '1 : product, 2:service
 
                                 If (newUnitPrice > 0 ) Then 
-                                    unitPrice = Format(newUnitPrice, "0.0000")
+                                    unitPrice = FormatNumber(newUnitPrice, 4, , , vbTrue)
                                 Else
-                                    unitPrice = Format(unitPriceByUom, "0.0000")
+                                    unitPrice = FormatNumber(unitPriceByUom, 4, , , vbTrue)
                                 End If
                                 totalCost          = (qty + qtyFree) * unitCostByUom
-                                totalPriceBeforDis = Format(qty * unitPrice, "0.0000")
+                                totalPriceBeforDis = FormatNumber(qty * unitPrice, 4, , , vbTrue)
 
                                 checkExistItemInvTotal             = item_row.Cells(a,26)
                                 checkExistItemInvTotalDetail       = item_row.Cells(a,27)

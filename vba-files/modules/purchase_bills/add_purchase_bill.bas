@@ -433,14 +433,15 @@ Private Sub SavePurchaseBill()
                                 unitCost = unitCostByUoM
                             End If
 
-                            totalAmountItem  = Format(totalCost + totalDisItem,"0.0000")
+                            totalAmountItem  = FormatNumber(totalCost + totalDisItem, 4, , , vbTrue)
                             qtyOrder         = (qty + qtyFree) / conversion '(qty + qtyFree) / smallValUoM / conversion
                             qtyOrderSmall    = (qty + qtyFree) * (smallValUoM / conversion)
-                            costOrder        = Format((totalCost / (qty + qtyFree)) , "0.0000") 
-                            unitCost         = Format(unitCost,"0.0000")
-                            newUnitCost      = Format(newUnitCost,"0.0000")
-                            unitCostByUoM    = Format(unitCostByUoM,"0.0000")
-                            totalCost        = Format(totalCost,"0.0000")   
+                            costOrder        = FormatNumber((totalCost / (qty + qtyFree)), 4, , , vbTrue) 
+                            unitCost         = FormatNumber(unitCost, 4, , , vbTrue)
+                            newUnitCost      = FormatNumber(newUnitCost, 4, , , vbTrue)
+                            unitCostByUoM    = FormatNumber(unitCostByUoM, 4, , , vbTrue)
+                            totalCost        = FormatNumber(totalCost, 4, , , vbTrue)
+                            
                             ' lotsNumber,expiredDate
                             range_pb.Cells(pb_detail_id, 1)   = pb_detail_id 'id
                             range_pb.Cells(pb_detail_id, 2)   = pb_id 'pb id

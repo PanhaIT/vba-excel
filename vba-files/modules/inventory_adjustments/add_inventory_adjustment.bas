@@ -29,7 +29,6 @@ Sub checkDatabaseFileAdj()
     '     Application.ScreenUpdating = TRUE
     '     Application.DisplayAlerts  = TRUE
     ' Else
-    
     ' End If
 End Sub
 
