@@ -69,7 +69,6 @@ Public  Sub addUomConversion()
                 rngUomCon.Cells(lastRowUomCon,6) = CInt(arrUomValue(k)) 'Value
                 rngUomCon.Cells(lastRowUomCon,7) = isSmallUom 'Is Small Uom
                 rngUomCon.Cells(lastRowUomCon,8) = 1 'Is Active
-                debug.Print "uom id =" & CInt(arrUomConId(k)) & ",lastRowUomCon=" & lastRowUomCon
                 k = k + 1
                 textMessageAlert = "UoM conversion have been saved successful."  
             End If

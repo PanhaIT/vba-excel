@@ -1,5 +1,33 @@
 Attribute VB_Name = "add_purchase_bill"
 
+'******purchase bill service*****
+' C - Id
+' D - PB ID
+' E - PB Code
+' F - PB Date
+' G - Vendor Id
+' H - Service Id
+' I - Service Code
+' J - Service Name
+' K - Qty
+' L - Qty Free
+' M - UoM
+' N - Uom Id
+' O - Conversion
+' P - Discount Id
+' Q - Discount Amount
+' R - Discount Percent
+' S - Default Cost
+' T - New Cost
+' U - Total Dis Item
+' V - Unit Cost
+' W - Total Cost
+' X - Remark
+' Y - Status
+' Z - Week
+' AA - Month
+' AB - Year
+
 Public  Sub Worksheet_SelectionChange(ByVal Target As Range)
     cells.EntireColumn.AutoFit
 End Sub
@@ -18,9 +46,9 @@ Private Sub SavePurchaseBill()
     Dim defaultCost,newUnitCost,unitCostByUoM,discountAmount,discountPercent,unitPrice, totalCost, totalDeposit,totalDiscount,totalAmount,grandTotalAmount,unitCost,totalDisItem,disItem,totalVat As Double
     Dim statusNote,vendorId,pbSheet,branchId,locationId,priceTypeId,discountTypeId As string
     Dim vendorName,pbNote,pbWeek,pbMonth,pbYear,expenseTypeId,expenseType,branchName,msgSave As String
-    Dim conversion, qtyOrder,qtyOrderSmall,inv_valuation_id,statusPB, pbNo, indexColor, pb_id, pb_detail_id, inventory_id, inv_total_detail_id, inventory_total_id,itemType As Integer
+    Dim conversion, qtyOrder,qtyOrderSmall,inv_valuation_id,statusPB, pbNo, indexColor, pb_id, pb_detail_id,pb_service_id, inventory_id, inv_total_detail_id, inventory_total_id,itemType As Integer
 
-    Dim qtyInvAdj,qtySale,qtySaleFree, qtyPb, qtyPr, qtySr, qtySrFree, qtyToIn, qtyToOut,stockIn,stockOut,totalQty,coaPurchaseVat,gld_sid_id,gld_cogs_id,gld_inventory_id As Integer
+    Dim qtyInvAdj,qtySale,qtySaleFree, qtyPb, qtyPr, qtySr, qtySrFree, qtyToIn, qtyToOut,stockIn,stockOut,totalQty,coaPurchaseVat,coaPurchaseService,gld_sid_id,gld_cogs_id,gld_inventory_id As Integer
     Dim checkExistProductInvTotal,checkExistProductInvTotalDetail, checkExistItemInvGroupTotal,checkExistItemInvGroupTotalDetail,stockByDateInvGroupTotalDetail,stockAvailableInvGroupTotal ,paymentTermId, qtyStock, productId, qty, qtyFree,smallValUoM, vatPercent,vatSettingId,vatCal,chartAccIncome,gld_sales_dis_id As Integer
     Dim purchaseRequestNo, refinvoiceCode ,productCode, productName, productUoM,pbCode As String
 
@@ -37,7 +65,7 @@ Private Sub SavePurchaseBill()
 
     Dim activeWorkbook, wbDatabase As Workbook
     Dim checkExistDb As Boolean
-    Dim ws_file_setting,ws_purchase_bill As Worksheet
+    Dim ws_file_setting,ws_purchase_bill,ws_pb_service As Worksheet
     Dim MyFSO As New FileSystemObject
     Dim databasePath, databaseFile, remark As String
 
@@ -111,13 +139,13 @@ Private Sub SavePurchaseBill()
     End If
 
     vatCal            = ActiveSheet.Range("pb_vat_cal_id").Value
-    totalVat          = FormatNumber(ActiveSheet.Range("pb_total_vat").Value, 4, , , vbTrue)
+    totalVat          = FormatNumber(ActiveSheet.Range("pb_total_vat").Value, 2, , , vbTrue)
 
-    totalDeposit      = FormatNumber(ActiveSheet.Range("pb_deposit").Value, 4, , , vbTrue)
-    totalDiscount     = FormatNumber(ActiveSheet.Range("pb_discount").Value, 4, , , vbTrue)
-    totalAmount       = FormatNumber(ActiveSheet.Range("pb_sub_total_amount").Value, 4, , , vbTrue)
+    totalDeposit      = FormatNumber(ActiveSheet.Range("pb_deposit").Value, 2, , , vbTrue)
+    totalDiscount     = FormatNumber(ActiveSheet.Range("pb_discount").Value, 2, , , vbTrue)
+    totalAmount       = FormatNumber(ActiveSheet.Range("pb_sub_total_amount").Value, 2, , , vbTrue)
     statusPB          = ActiveSheet.Range("pb_status").Value
-    grandTotalAmount  = FormatNumber(ActiveSheet.Range("pb_total_amount").Value, 4, , , vbTrue)
+    grandTotalAmount  = FormatNumber(ActiveSheet.Range("pb_total_amount").Value, 2, , , vbTrue)
 
     Set coaDefaultRange = Sheets("ChartAccountDefault").Range("chart_account_default_list2")
 
@@ -125,6 +153,7 @@ Private Sub SavePurchaseBill()
     coaInventory        = Application.VLookup("Inventory Asset Account", coaDefaultRange, 3, False)
     coaPayable          = Application.VLookup("Accounts Payable", coaDefaultRange, 3, False)
     coaPurchaseVat      = Application.VLookup("Purchase VAT", coaDefaultRange, 3, False)
+    coaPurchaseService  = Application.VLookup("Purchase Service", coaDefaultRange, 3, False)
     
     If (ActiveSheet.Range("pb_exchange_rate").Value >0) Then 
         exchangeRate  = ActiveSheet.Range("pb_exchange_rate").Value
@@ -133,7 +162,7 @@ Private Sub SavePurchaseBill()
     End If
    
     totalDeposit = 0
-    totalBalance = FormatNumber(totalAmount + totalVat - (totalDiscount + totalDeposit), 4, , , vbTrue)
+    totalBalance = FormatNumber(totalAmount + totalVat - (totalDiscount + totalDeposit), 2, , , vbTrue)
     
     If answer = vbYes And checkDatabaseFile = TRUE Then
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
@@ -153,6 +182,7 @@ Private Sub SavePurchaseBill()
 
         Set ws_purchase_bill    = wbDatabase.Sheets("PurchaseBill")
         Set ws_pb_detail        = wbDatabase.Sheets("PurchaseBillDetail")
+        Set ws_pb_service       = wbDatabase.Sheets("PurchaseBillService")
 
         Set ws_gl               = wbDatabase.sheets("GeneralLedger")
         Set ws_gld              = wbDatabase.Sheets("GeneralLedgerDetail")
@@ -207,6 +237,7 @@ Private Sub SavePurchaseBill()
 
                     Set range_pb         = ws_pb_detail.Range("C8:AE8")
                     pb_detail_id         = ws_pb_detail.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                    pb_service_id        = ws_pb_service.Cells(Rows.Count, "C").End(xlUp).Row - 6
 
                     Set ws_gl_data       = ws_gl.Range("C8:Al8")
                     gl_id                = ws_gl.Cells(Rows.Count, "C").End(xlUp).Row - 6
@@ -219,7 +250,7 @@ Private Sub SavePurchaseBill()
                         vatCal          = ""
                         vatSettingId    = ""
                         vatPercent      = 0
-                        coaPurchaseVat   = ""
+                        coaPurchaseVat  = ""
                     End If
 
                     pb_data_r.Cells(pb_id,1)  = pb_id 'id
@@ -360,7 +391,7 @@ Private Sub SavePurchaseBill()
 
                     For a = 1 To item_row.Rows.Count
                         If item_row.Cells(a,1) <> "" Then 'old condition => WorksheetFunction.Count(rng.Rows(a)) <> 0
-                            'insert sales pb detail
+                            itemType             = CInt(item_row.Cells(a,23)) '1 : product, 2:service
                             conversion           = 1
                             productId            = item_row.Cells(a,1)
                             productCode          = item_row.Cells(a,3)
@@ -383,7 +414,7 @@ Private Sub SavePurchaseBill()
                             smallValUoM          = item_row.Cells(a,20)
                             totalDisItem         = item_row.Cells(a,21)
                             defaultCost          = item_row.Cells(a,22)
-                            itemType             = item_row.Cells(a,23) '1 : product, 2:service
+                            
 
                             checkExistProductInvTotal          = item_row.Cells(a,24)
                             checkExistProductInvTotalDetail    = item_row.Cells(a,25)
@@ -395,410 +426,487 @@ Private Sub SavePurchaseBill()
                             stockByDateInvGroupTotalDetail     = item_row.Cells(a,28)
                             stockAvailableInvGroupTotal        = item_row.Cells(a,29)
 
-                            'Updaet product cost
-                            last_product_id      = ws_product.Cells(Rows.Count, "C").End(xlUp).Row
-
-                            Set proCostHisRange  = ws_pro_cost_his.Range("C8:L8")
-                            last_pro_cost_his    = ws_pro_cost_his.Cells(Rows.Count,"C").End(xlUp).Row - 6
-
-                            If (newUnitCost > 0 And unitCostByUoM  <> newUnitCost) Then
-                                proCostHisRange.Cells(last_pro_cost_his,1)  = last_pro_cost_his ' ID
-                                proCostHisRange.Cells(last_pro_cost_his,2)  = pb_id ' Purchase Bill Id
-                                proCostHisRange.Cells(last_pro_cost_his,3)  = pbCode ' Purchase Bill Code
-                                proCostHisRange.Cells(last_pro_cost_his,4)  = productId  ' Product Id
-                                proCostHisRange.Cells(last_pro_cost_his,5)  = productCode  ' Product Code
-                                proCostHisRange.Cells(last_pro_cost_his,6)  = productName  ' Product Name
-                                proCostHisRange.Cells(last_pro_cost_his,7)  = Application.VLookup(productId * 1, rngProductList, 8, False)  ' Product Uom
-                                proCostHisRange.Cells(last_pro_cost_his,8)  = smallValUoM  ' Small Value Uom
-                                proCostHisRange.Cells(last_pro_cost_his,9)  = unitCostByUoM * conversion  ' Old Cost
-                                proCostHisRange.Cells(last_pro_cost_his,10) = newUnitCost * conversion   ' New Cost
-                                proCostHisRange.Cells(last_pro_cost_his,11) = "Purchase"  ' Type
-                                proCostHisRange.Cells(last_pro_cost_his,12) = createdDate ' Created
-                                proCostHisRange.Cells(last_pro_cost_his,13) = 1' Created By
-                                proCostHisRange.Cells(last_pro_cost_his,14) = 1 ' Status
-                                
-                                For j = 8 To last_product_id
-                                    If (CInt(ws_product.Cells(j,"C").Value) = productId ) Then
-                                        'update unit cost product
-                                        ws_product.Cells(j,"P") = newUnitCost * conversion 'total qty sale 
-                                        ' ws_product.Cells(j,13) = newUnitCost * conversion 'total qty sale 
-                                        Exit For
-                                    End If
-                                Next j
-                            End If
-
                             If (newUnitCost>0) Then 
                                 unitCost = newUnitCost
                             Else
                                 unitCost = unitCostByUoM
                             End If
 
-                            totalAmountItem  = FormatNumber(totalCost + totalDisItem, 4, , , vbTrue)
+                            totalAmountItem  = FormatNumber(totalCost + totalDisItem, 2, , , vbTrue)
                             qtyOrder         = (qty + qtyFree) / conversion '(qty + qtyFree) / smallValUoM / conversion
                             qtyOrderSmall    = (qty + qtyFree) * (smallValUoM / conversion)
-                            costOrder        = FormatNumber((totalCost / (qty + qtyFree)), 4, , , vbTrue) 
+                            costOrder        = FormatNumber((totalCost / (qty + qtyFree)), 2, , , vbTrue) 
                             unitCost         = FormatNumber(unitCost, 4, , , vbTrue)
-                            newUnitCost      = FormatNumber(newUnitCost, 4, , , vbTrue)
-                            unitCostByUoM    = FormatNumber(unitCostByUoM, 4, , , vbTrue)
-                            totalCost        = FormatNumber(totalCost, 4, , , vbTrue)
-                            
-                            ' lotsNumber,expiredDate
-                            range_pb.Cells(pb_detail_id, 1)   = pb_detail_id 'id
-                            range_pb.Cells(pb_detail_id, 2)   = pb_id 'pb id
-                            range_pb.Cells(pb_detail_id, 3)   = "" 'Purchase Receive Id
-                            range_pb.Cells(pb_detail_id, 4)   = pbCode 'pb number
-                            range_pb.Cells(pb_detail_id, 5)   = pbDate 'pb date
-                            range_pb.Cells(pb_detail_id, 6)   = vendorId 'vendor id
-                            range_pb.Cells(pb_detail_id, 7)   = productId 'Product Id
-                            range_pb.Cells(pb_detail_id, 8)   = productCode 'barcode product
-                            range_pb.Cells(pb_detail_id, 9)   = productName 'item description/service
-                            range_pb.Cells(pb_detail_id, 10)  = qty 'qty
-                            range_pb.Cells(pb_detail_id, 11)  = qtyFree 'qty free
-                            range_pb.Cells(pb_detail_id, 12)  = productUoM 'uom
-                            range_pb.Cells(pb_detail_id, 13)  = productUomId 'uom id
-                            range_pb.Cells(pb_detail_id, 14)  = conversion 'uom smallValUoM
-                            range_pb.Cells(pb_detail_id, 15)  = "" 'Dis ID
-                            range_pb.Cells(pb_detail_id, 16)  = disItem 'Dis Amount
-                            range_pb.Cells(pb_detail_id, 17)  = "" 'Dis Percent
-                            range_pb.Cells(pb_detail_id, 18)  = unitCost 'Default cost
-                            range_pb.Cells(pb_detail_id, 19)  = costOrder 'New Unit Cost
-                            range_pb.Cells(pb_detail_id, 20)  = unitCost 'unit cost
-                            range_pb.Cells(pb_detail_id, 21)  = totalDisItem 'Total Dis Item
-                            range_pb.Cells(pb_detail_id, 22)  = totalCost 'total cost
-                            range_pb.Cells(pb_detail_id, 23)  = lotsNumber 'Lote Number
-                            If (expiredDate > 0) Then 
-                            range_pb.Cells(pb_detail_id, 24)  = expiredDate 'Expired date
-                            Else
-                            range_pb.Cells(pb_detail_id, 24)  = "" 'Expired date
-                            End If
-                            range_pb.Cells(pb_detail_id, 25)  = remark 'Note
-                            range_pb.Cells(pb_detail_id, 26)  = 1 'status
-                            range_pb.Cells(pb_detail_id, 27)  = pbWeek 'week
-                            range_pb.Cells(pb_detail_id, 28)  = pbMonth 'month
-                            range_pb.Cells(pb_detail_id, 29)  = pbYear 'year
+                            ' unitCostByUoM    = FormatNumber(unitCostByUoM, 2, , , vbTrue)
+                            totalCost        = FormatNumber(totalCost, 2, , , vbTrue)
 
-                            Set range_inventory_valuation    = ws_pb_valuaction.Range("C8:AI8")
-                            inv_valuation_id                 = ws_pb_valuaction.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                            ' insert inventory valucation
-                            range_inventory_valuation.Cells(inv_valuation_id, 1)    = inv_valuation_id 'id
-                            range_inventory_valuation.Cells(inv_valuation_id, 2)    = 1 'company_id
-                            range_inventory_valuation.Cells(inv_valuation_id, 3)    = branchId 'branch_id
-                            range_inventory_valuation.Cells(inv_valuation_id, 7)    = pb_id 'purchase bill id
-                            range_inventory_valuation.Cells(inv_valuation_id, 8)    = pb_detail_id 'purchase bill detail id
-                            range_inventory_valuation.Cells(inv_valuation_id, 13)   = "Bill" 'type=>Bill,Inventory Adjust,Invoice
-                            range_inventory_valuation.Cells(inv_valuation_id, 14)   = pbCode 'reference
-                            range_inventory_valuation.Cells(inv_valuation_id, 15)   = "" 'customer_id
-                            range_inventory_valuation.Cells(inv_valuation_id, 16)   = vendorId 'vendor_id
-                            range_inventory_valuation.Cells(inv_valuation_id, 17)   = pbDate 'date
-                            range_inventory_valuation.Cells(inv_valuation_id, 18)   = productId 'product_id
-                            range_inventory_valuation.Cells(inv_valuation_id, 19)   = qtyOrderSmall 'small_qty
-                            range_inventory_valuation.Cells(inv_valuation_id, 20)   = qtyOrder 'qty
-                            range_inventory_valuation.Cells(inv_valuation_id, 21)   = costOrder 'cost
-                            range_inventory_valuation.Cells(inv_valuation_id, 22)   = 0 'price
-                            range_inventory_valuation.Cells(inv_valuation_id, 23)   = 0 'on_hand
-                            range_inventory_valuation.Cells(inv_valuation_id, 24)   = 0 'on_hand_small
-                            range_inventory_valuation.Cells(inv_valuation_id, 25)   = costOrder 'avg_cost
-                            range_inventory_valuation.Cells(inv_valuation_id, 26)   = 0 'asset_value
-                            range_inventory_valuation.Cells(inv_valuation_id, 27)   = createdDate 'created
-                            range_inventory_valuation.Cells(inv_valuation_id, 28)   = "" 'date_edited
-                            range_inventory_valuation.Cells(inv_valuation_id, 29)   = 0 'is_refer_gm_id
-                            range_inventory_valuation.Cells(inv_valuation_id, 30)   = 0 'avg_refer
-                            range_inventory_valuation.Cells(inv_valuation_id, 31)   = 1 'is_var_cost
-                            range_inventory_valuation.Cells(inv_valuation_id, 32)   = 0 'is_adjust_value
-                            'range_inventory_valuation.Cells(inv_valuation_id, 33)   = 1 'is_active
+                            'insert pb detail
+                            '**************Insert transaction product*************
+                            If (itemType = 1) Then 'type = 1 (product)
+                                'Updaet product cost
+                                last_product_id      = ws_product.Cells(Rows.Count, "C").End(xlUp).Row
 
-                            'General Ledger Detail (Product Inventory)
-                            gld_inventory_id = ws_gld.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                            ws_gld_data.Cells(gld_inventory_id,1)  = gld_inventory_id 'id
-                            ws_gld_data.Cells(gld_inventory_id,2)  = gl_id 'general_ledger_id
-                            ws_gld_data.Cells(gld_inventory_id,3)  = coaInventory 'chart_account_id =3
-                            ws_gld_data.Cells(gld_inventory_id,4)  = 1 'company_id
-                            ws_gld_data.Cells(gld_inventory_id,5)  = branchId 'branch id
-                            ws_gld_data.Cells(gld_inventory_id,6)  = locationGroupId 'location group id
-                            ws_gld_data.Cells(gld_inventory_id,7)  = locationId 'location id
-                            ws_gld_data.Cells(gld_inventory_id,8)  = productId 'product_id
-                            ws_gld_data.Cells(gld_inventory_id,11) = inv_valuation_id 'inventory_valuation_id
-                            ws_gld_data.Cells(gld_inventory_id,12) = 0 'inventory_valuation_is_debit
-                            ws_gld_data.Cells(gld_inventory_id,13) = pb_detail_id 'purchase bill detail id
-                            ws_gld_data.Cells(gld_inventory_id,16) = "Bill" 'type=> Bill,Inventory Adjust,Invoice,Invoice Payment,Pay Bill,POS,Purchase Bill Payment,Receive Payment,Retained Earning 
-                            ws_gld_data.Cells(gld_inventory_id,17) = totalAmountItem 'debit total amount before discount
-                            ws_gld_data.Cells(gld_inventory_id,18) = 0 'credit
-                            ws_gld_data.Cells(gld_inventory_id,19) = "ICS: PB # " & pbCode & " Product # " & productCode & " " &  productName 'memo
-                            ws_gld_data.Cells(gld_inventory_id,20) = vendorId 'vendor_id
-                            ws_gld_data.Cells(gld_inventory_id,24) = 1 'class_id
-                            ws_gld_data.Cells(gld_inventory_id,25) = 1 'is_active
-                            ws_gld_data.Cells(gld_inventory_id,26) = pbWeek 'week
-                            ws_gld_data.Cells(gld_inventory_id,27) = pbMonth 'month
-                            ws_gld_data.Cells(gld_inventory_id,28) = pbYear 'year
-                            gld_inventory_id = gld_inventory_id + 1
+                                Set proCostHisRange  = ws_pro_cost_his.Range("C8:L8")
+                                last_pro_cost_his    = ws_pro_cost_his.Cells(Rows.Count,"C").End(xlUp).Row - 6
 
-                            If (totalDisItem > 0) Then
-                                'insert general ledger detail Accounts Receivable
-                                gld_discount_id = ws_gld.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                                ws_gld_data.Cells(gld_discount_id,1)  = gld_discount_id 'id
-                                ws_gld_data.Cells(gld_discount_id,2)  = gl_id 'general_ledger_id
-                                ws_gld_data.Cells(gld_discount_id,3)  = coaPurchaseDiscount 'chart_account_id
-                                ws_gld_data.Cells(gld_discount_id,4)  = 1 'company_id
-                                ws_gld_data.Cells(gld_discount_id,5)  = branchId 'branch id
-                                ws_gld_data.Cells(gld_discount_id,6)  = locationGroupId 'location group id
-                                ws_gld_data.Cells(gld_discount_id,7)  = locationId 'location id
-                                ws_gld_data.Cells(gld_discount_id,13) = pb_detail_id 'purchase bill detail id
-                                ws_gld_data.Cells(gld_discount_id,16) = "Bill" 'type
-                                ws_gld_data.Cells(gld_discount_id,17) = 0 'debit
-                                ws_gld_data.Cells(gld_discount_id,18) = totalDisItem 'credit
-                                ws_gld_data.Cells(gld_discount_id,19) = "ICS: PB # " & pbCode & " Product # " & productCode & " " & productName & " Discount" 'memo
-                                ws_gld_data.Cells(gld_discount_id,20) = vendorId 'vendor_id
-                                ws_gld_data.Cells(gld_discount_id,24) = 1 'class_id
-                                ws_gld_data.Cells(gld_discount_id,25) = 1 'is_active
-                                ws_gld_data.Cells(gld_discount_id,26) = pbWeek 'week
-                                ws_gld_data.Cells(gld_discount_id,27) = pbMonth 'month
-                                ws_gld_data.Cells(gld_discount_id,28) = pbYear 'year
-                                gld_discount_id = gld_discount_id + 1
-                            End If
-
-                            inv_valuation_id = inv_valuation_id + 1
-                            pb_detail_id     = pb_detail_id + 1
-
-                            'insert inventory
-                            Set inventory        = ws_pb.Range("C8:AA8")
-                            inventory_id         = ws_pb.Cells(Rows.Count, "C").End(xlUp).Row - 6
-
-                            inventory.Cells(inventory_id, 1)   = inventory_id 'id
-                            inventory.Cells(inventory_id, 2)   = productId 'product id
-                            inventory.Cells(inventory_id, 3)   = productCode 'product code
-                            inventory.Cells(inventory_id, 4)   = productName 'product name
-                            inventory.Cells(inventory_id, 5)   = pbDate 'inventory date
-                            inventory.Cells(inventory_id, 6)   = locationId 'location id
-                            inventory.Cells(inventory_id, 7)   = locationGroupId 'location group id
-                            inventory.Cells(inventory_id, 8)   = "Purchase" 'inventory type (Inv Adj,Purchase,Sale,Void Sale...)
-                            inventory.Cells(inventory_id, 10)   = vendorId 'vendor id
-                            inventory.Cells(inventory_id, 15)  = pb_id 'Purchase Bill Id
-                            inventory.Cells(inventory_id, 19)  = qtyOrderSmall  'Qty
-                            inventory.Cells(inventory_id, 20)  = unitCost 'Unit Cost 
-                            inventory.Cells(inventory_id, 21)  = 0 'Unit Price
-                            inventory.Cells(inventory_id, 22)  = 1 'status
-                            inventory.Cells(inventory_id, 23)  = lotsNumber 'Lots Number, 
-                            If (expiredDate > 0) Then 
-                            inventory.Cells(inventory_id, 24)  = expiredDate 'Expired Date
-                            Else 
-                            inventory.Cells(inventory_id, 24)  = "" 'Expired Date
-                            End If
-                            inventory.Cells(inventory_id, 25)  = createdDate 'created date
-                            inventory.Cells(inventory_id, 26)  = pbWeek 'week
-                            inventory.Cells(inventory_id, 27)  = pbMonth 'month
-                            inventory.Cells(inventory_id, 28)  = pbYear 'year
-                            inventory_id = inventory_id + 1
-
-                            'Insert/Update 1_group_totals               
-                            Set invGroupTotal        = ws_group_total.Range("C8:S8")
-                            invGroupTotalId          = ws_group_total.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                            LastRowInvGroupTotal = ws_group_total.Cells(Rows.Count, "C").End(xlUp).Row
-                            ' debug.Print "checkExistItemInvGroupTotal=" & checkExistItemInvGroupTotal & ",LastRowInvGroupTotal=" & LastRowInvGroupTotal
-                            If checkExistItemInvGroupTotal > 0 Then
-                                qtyInvAdj    = 0
-                                qtySale      = 0
-                                qtySaleFree  = 0
-                                qtyPos       = 0
-                                qtyPosFree   = 0
-                                qtyPb        = 0
-                                qtyPr        = 0
-                                qtySr        = 0
-                                qtySrFree    = 0
-                                qtyToIn      = 0
-                                qtyToOut     = 0
-                                For i = 8 To LastRowInvGroupTotal
-                                    'update inventory total
-                                    If ws_group_total.Cells(i,3).Value * 1 = productId * 1 And ws_group_total.Cells(i,6).Value = locationGroupId And ws_group_total.Cells(i,7).Value = locationId And ws_group_total.Cells(i,8).Value = lotsNumber  And ws_group_total.Cells(i,9).Value = expiredDate Then
-                                        qtyInvAdj    = ws_group_total.Cells(i, 11) * 1
-                                        qtySale      = ws_group_total.Cells(i, 12) * 1
-                                        qtyPos       = ws_group_total.Cells(i, 13) * 1
-                                        qtyPb        = ws_group_total.Cells(i, 14) * 1
-                                        qtyPr        = ws_group_total.Cells(i, 15) * 1
-                                        qtySr        = ws_group_total.Cells(i, 16) * 1
-                                        qtyToIn      = ws_group_total.Cells(i, 17) * 1
-                                        qtyToOut     = ws_group_total.Cells(i, 18) * 1
-
-                                        stockIn      = qtyOrderSmall + (qtyInvAdj + qtyPb + qtySr + qtyToIn)
-                                        stockOut     = qtySale + qtyPos + qtyPr + qtyToOut '(qty + qtyFree) = New Qty Sales
-                                        totalQty     = stockIn - stockOut
-
-                                        ws_group_total.Cells(i,10)  = totalQty 'total qty
-                                        ws_group_total.Cells(i,14)  = qtyPb + qtyOrderSmall 'total qty purchase bill
-                                        Exit For
-                                    End If
-                                Next i
-                            Else
-                                'insert New record inventory group total invGroupTotal  ' lotsNumber,expiredDate
-                                invGroupTotal.Cells(invGroupTotalId,1)   = productId 'product id 
-                                invGroupTotal.Cells(invGroupTotalId,2)   = productCode 'product code
-                                invGroupTotal.Cells(invGroupTotalId,3)   = productName 'product name
-                                invGroupTotal.Cells(invGroupTotalId,4)   = locationGroupId 'location group id
-                                invGroupTotal.Cells(invGroupTotalId,5)   = locationId 'location id
-                                If (lotsNumber<> "") Then 
-                                invGroupTotal.Cells(invGroupTotalId,6)   = lotsNumber 'lote number
-                                Else
-                                invGroupTotal.Cells(invGroupTotalId,6)   = "" 'lote number
+                                If (newUnitCost > 0 And unitCostByUoM  <> newUnitCost) Then
+                                    proCostHisRange.Cells(last_pro_cost_his,1)  = last_pro_cost_his ' ID
+                                    proCostHisRange.Cells(last_pro_cost_his,2)  = pb_id ' Purchase Bill Id
+                                    proCostHisRange.Cells(last_pro_cost_his,3)  = pbCode ' Purchase Bill Code
+                                    proCostHisRange.Cells(last_pro_cost_his,4)  = productId  ' Product Id
+                                    proCostHisRange.Cells(last_pro_cost_his,5)  = productCode  ' Product Code
+                                    proCostHisRange.Cells(last_pro_cost_his,6)  = productName  ' Product Name
+                                    proCostHisRange.Cells(last_pro_cost_his,7)  = Application.VLookup(productId * 1, rngProductList, 8, False)  ' Product Uom
+                                    proCostHisRange.Cells(last_pro_cost_his,8)  = smallValUoM  ' Small Value Uom
+                                    proCostHisRange.Cells(last_pro_cost_his,9)  = FormatNumber(unitCostByUoM * conversion, 4, , , vbTrue)  ' Old Cost
+                                    proCostHisRange.Cells(last_pro_cost_his,10) = FormatNumber(newUnitCost * conversion, 4, , , vbTrue)   ' New Cost
+                                    proCostHisRange.Cells(last_pro_cost_his,11) = "Purchase"  ' Type
+                                    proCostHisRange.Cells(last_pro_cost_his,12) = createdDate ' Created
+                                    proCostHisRange.Cells(last_pro_cost_his,13) = 1' Created By
+                                    proCostHisRange.Cells(last_pro_cost_his,14) = 1 ' Status
+                                    
+                                    For j = 8 To last_product_id
+                                        If (CInt(ws_product.Cells(j,"C").Value) = productId ) Then
+                                            'update unit cost product
+                                            ws_product.Cells(j,"P") = FormatNumber(newUnitCost * conversion, 4, , , vbTrue) 'total qty sale 
+                                            ' ws_product.Cells(j,13) = FormatNumber(newUnitCost * conversion, 4, , , vbTrue) 'total qty sale 
+                                            Exit For
+                                        End If
+                                    Next j
                                 End If
-                                If (expiredDate >0) Then 
-                                invGroupTotal.Cells(invGroupTotalId,7)   = expiredDate 'expired date
-                                Else
-                                invGroupTotal.Cells(invGroupTotalId,7)   = "" 'expired date
-                                End If
-                                invGroupTotal.Cells(invGroupTotalId,8)   = qtyOrderSmall 'total qty ending
-                                invGroupTotal.Cells(invGroupTotalId,9)   = 0 'total qty adjustment
-                                invGroupTotal.Cells(invGroupTotalId,10)  = 0 'total qty sale
-                                invGroupTotal.Cells(invGroupTotalId,11)  = 0 'Total Pos
-                                invGroupTotal.Cells(invGroupTotalId,12)  = qtyOrderSmall 'Total PB
-                                invGroupTotal.Cells(invGroupTotalId,13)  = 0 'Total PR
-                                invGroupTotal.Cells(invGroupTotalId,14)  = 0 'Total SR
-                                invGroupTotal.Cells(invGroupTotalId,15)  = 0 'Total TO In
-                                invGroupTotal.Cells(invGroupTotalId,16)  = 0 'Total TO Out
-                                invGroupTotal.Cells(invGroupTotalId,17)  = 0 'Total Order
-                                invGroupTotalId = invGroupTotalId + 1
-                            End If
-
-                            'insert / update 1_group_total_detail
-                            Set invTotalGroupDetail  = ws_group_total_detail.Range("C8:Q8")
-                            invTotalGroupDetailId    = ws_group_total_detail.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                            lastInvTotalGroupDetail  = ws_group_total_detail.Cells(Rows.Count, "C").End(xlUp).Row
-                            ' debug.Print "checkExistItemInvGroupTotalDetail=" & checkExistItemInvGroupTotalDetail & ",lastInvTotalGroupDetail=" & lastInvTotalGroupDetail
-                            If checkExistItemInvGroupTotalDetail > 0  Then
-                                For j = 8 To lastInvTotalGroupDetail
-                                    If (ws_group_total_detail.Cells(j,3).Value * 1 = productId * 1 And ws_group_total_detail.Cells(j,6).Value * 1 = locationGroupId And ws_group_total_detail.Cells(j,7).Value * 1 = locationId And ws_group_total_detail.Cells(j,8).Value = pbDate) Then
-                                        'update  inventory total detail
-                                        ws_group_total_detail.Cells(j,12) = ws_group_total_detail.Cells(j,12) * 1 + qtyOrderSmall 'total qty purchase bill 
-                                        Exit For
-                                    End If
-                                Next j
-                            Else
-                                'insert New record inventory total detail
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,1)   = productId 'product id
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,2)   = productCode 'product code
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,3)   = productName 'product name
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,4)   = locationGroupId 'location id
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,5)   = locationId 'location id
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,6)   = pbDate 'date
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,7)   = 0 'total adjustment
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,8)   = 0 'total sale invoice
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,9)   = 0 'Total Pos
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,10)  = qtyOrderSmall 'Total Purchase Bill
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,11)  = 0 'Total Purchase Return
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,12)  = 0 'Total Sales Return
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,13)  = 0 'Total Transfer Order In
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,14)  = 0 'Total Transfer Order Out
-                                invTotalGroupDetail.Cells(invTotalGroupDetailId,15)  = 0 'Total Order
-                                invTotalGroupDetailId = invTotalGroupDetailId + 1
-                            End If
-
-                            'update & insert inventory total
-                            Set range_inventory_total  = ws_pb_total.Range("C8:T8")
-                            inventory_total_id         = ws_pb_total.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                            LastRowInvTotal            = ws_pb_total.Cells(Rows.Count, "C").End(xlUp).Row
-                            ' debug.print "checkExistProductInvTotal=" & checkExistProductInvTotal
-                            If checkExistProductInvTotal > 0 Then
-                                qtyInvAdj    = 0
-                                qtySale      = 0
-                                qtySaleFree  = 0
-                                qtyPos       = 0
-                                qtyPosFree   = 0
-                                qtyPb        = 0
-                                qtyPr        = 0
-                                qtySr        = 0
-                                qtySrFree    = 0
-                                qtyToIn      = 0
-                                qtyToOut     = 0
-                                For i = 8 To LastRowInvTotal
-                                    'update inventory total lotsNumber expiredDate
-                                    ' debug.Print "product=>" & ws_pb_total.Cells(i,3).Value * 1 & "=" & productId * 1  & "=>lotsNumber : " &  ws_pb_total.Cells(i,6).Value  & "=" &  lotsNumber & "=>expiredDate : " &  ws_pb_total.Cells(i,7).Value  & "=" &  expiredDate 
-                                    If ws_pb_total.Cells(i,3).Value * 1 = productId * 1 And ws_pb_total.Cells(i,6).Value = lotsNumber And ws_pb_total.Cells(i,7).Value = expiredDate  Then
-                                        qtyInvAdj    = ws_pb_total.Cells(i, 9) * 1
-                                        qtySale      = ws_pb_total.Cells(i, 10) * 1
-                                        qtySaleFree  = ws_pb_total.Cells(i, 11) * 1
-                                        qtyPos       = ws_pb_total.Cells(i, 12) * 1
-                                        qtyPosFree   = ws_pb_total.Cells(i, 13) * 1
-                                        qtyPb        = ws_pb_total.Cells(i, 14) * 1
-                                        qtyPr        = ws_pb_total.Cells(i, 15) * 1
-                                        qtySr        = ws_pb_total.Cells(i, 16) * 1
-                                        qtySrFree    = ws_pb_total.Cells(i, 17) * 1
-                                        qtyToIn      = ws_pb_total.Cells(i, 18) * 1
-                                        qtyToOut     = ws_pb_total.Cells(i, 19) * 1
-
-                                        stockIn      = qtyOrderSmall + qtyInvAdj + qtyPb + qtySr + qtySrFree + qtyToIn 
-                                        stockOut     = qtySale + qtySaleFree + qtyPos + qtyPosFree + qtyPr + qtyToOut '(qty + qtyFree) = New Qty Sales
-                                        totalQty     = stockIn - stockOut
-                                        'range_inventory_total, ws_pb_total
-                                        ws_pb_total.Cells(i,8)  = totalQty 'total qty
-                                        ws_pb_total.Cells(i,14) = qtyPb + qtyOrderSmall 'total qty sale
-                                        Exit For
-                                    End If
-                                Next i
-                            ElseIf checkExistProductInvTotal = 0 Then
-                                'insert New record inventory total
-                                ' debug.Print "checkExistProductInvTotal=" & checkExistProductInvTotal & ",inventory_total_id=" & inventory_total_id
-                                range_inventory_total.Cells(inventory_total_id,1)   = productId 'product id 
-                                range_inventory_total.Cells(inventory_total_id,2)   = productCode 'product code
-                                range_inventory_total.Cells(inventory_total_id,3)   = productName 'product name
-                                range_inventory_total.Cells(inventory_total_id,4)   = lotsNumber 'lots number
+                                
+                                ' lotsNumber,expiredDate
+                                range_pb.Cells(pb_detail_id, 1)   = pb_detail_id 'id
+                                range_pb.Cells(pb_detail_id, 2)   = pb_id 'pb id
+                                range_pb.Cells(pb_detail_id, 3)   = "" 'Purchase Receive Id
+                                range_pb.Cells(pb_detail_id, 4)   = pbCode 'pb number
+                                range_pb.Cells(pb_detail_id, 5)   = pbDate 'pb date
+                                range_pb.Cells(pb_detail_id, 6)   = vendorId 'vendor id
+                                range_pb.Cells(pb_detail_id, 7)   = productId 'Product Id
+                                range_pb.Cells(pb_detail_id, 8)   = productCode 'barcode product
+                                range_pb.Cells(pb_detail_id, 9)   = productName 'item description/service
+                                range_pb.Cells(pb_detail_id, 10)  = qty 'qty
+                                range_pb.Cells(pb_detail_id, 11)  = qtyFree 'qty free
+                                range_pb.Cells(pb_detail_id, 12)  = productUoM 'uom
+                                range_pb.Cells(pb_detail_id, 13)  = productUomId 'uom id
+                                range_pb.Cells(pb_detail_id, 14)  = conversion 'uom smallValUoM
+                                range_pb.Cells(pb_detail_id, 15)  = "" 'Dis ID
+                                range_pb.Cells(pb_detail_id, 16)  = disItem 'Dis Amount
+                                range_pb.Cells(pb_detail_id, 17)  = "" 'Dis Percent
+                                range_pb.Cells(pb_detail_id, 18)  = unitCost 'Default cost
+                                range_pb.Cells(pb_detail_id, 19)  = costOrder 'New Unit Cost
+                                range_pb.Cells(pb_detail_id, 20)  = unitCost 'unit cost
+                                range_pb.Cells(pb_detail_id, 21)  = totalDisItem 'Total Dis Item
+                                range_pb.Cells(pb_detail_id, 22)  = totalCost 'total cost
+                                range_pb.Cells(pb_detail_id, 23)  = lotsNumber 'Lote Number
                                 If (expiredDate > 0) Then 
-                                range_inventory_total.Cells(inventory_total_id,5)   = expiredDate 'expired date
+                                range_pb.Cells(pb_detail_id, 24)  = expiredDate 'Expired date
                                 Else
-                                range_inventory_total.Cells(inventory_total_id,5)   = "" 'expired date
+                                range_pb.Cells(pb_detail_id, 24)  = "" 'Expired date
                                 End If
-                                range_inventory_total.Cells(inventory_total_id,6)   = qtyOrderSmall 'total qty ending
-                                range_inventory_total.Cells(inventory_total_id,7)   = 0 'total qty adjustment
-                                range_inventory_total.Cells(inventory_total_id,8)   = 0 'total qty sale
-                                range_inventory_total.Cells(inventory_total_id,9)   = 0 'total qty free sale
-                                range_inventory_total.Cells(inventory_total_id,10)  = 0 'Total Pos
-                                range_inventory_total.Cells(inventory_total_id,11)  = 0 'Total Pos Free
-                                range_inventory_total.Cells(inventory_total_id,12)  = qtyOrderSmall 'Total PB
-                                range_inventory_total.Cells(inventory_total_id,13)  = 0 'Total PR
-                                range_inventory_total.Cells(inventory_total_id,14)  = 0 'Total SR
-                                range_inventory_total.Cells(inventory_total_id,15)  = 0 'Total SR Free
-                                range_inventory_total.Cells(inventory_total_id,16)  = 0 'Total TO In
-                                range_inventory_total.Cells(inventory_total_id,17)  = 0 'Total TO Out
-                                range_inventory_total.Cells(inventory_total_id,18)  = 0 'Total Order
-                                inventory_total_id = inventory_total_id + 1
-                            End If
+                                range_pb.Cells(pb_detail_id, 25)  = remark 'Note
+                                range_pb.Cells(pb_detail_id, 26)  = 1 'status
+                                range_pb.Cells(pb_detail_id, 27)  = pbWeek 'week
+                                range_pb.Cells(pb_detail_id, 28)  = pbMonth 'month
+                                range_pb.Cells(pb_detail_id, 29)  = pbYear 'year
 
-                            'update & insert inventory total detail
-                            Set range_inventory_total_detail = ws_pb_total_detail.Range("C8:R8")
-                            inv_total_detail_id              = ws_pb_total_detail.Cells(Rows.Count, "C").End(xlUp).Row - 6
-                            lastRowInvTotalDetail            = ws_pb_total_detail.Cells(Rows.Count, "C").End(xlUp).Row
+                                Set range_inventory_valuation    = ws_pb_valuaction.Range("C8:AI8")
+                                inv_valuation_id                 = ws_pb_valuaction.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                ' insert inventory valucation
+                                range_inventory_valuation.Cells(inv_valuation_id, 1)    = inv_valuation_id 'id
+                                range_inventory_valuation.Cells(inv_valuation_id, 2)    = 1 'company_id
+                                range_inventory_valuation.Cells(inv_valuation_id, 3)    = branchId 'branch_id
+                                range_inventory_valuation.Cells(inv_valuation_id, 7)    = pb_id 'purchase bill id
+                                range_inventory_valuation.Cells(inv_valuation_id, 8)    = pb_detail_id 'purchase bill detail id
+                                range_inventory_valuation.Cells(inv_valuation_id, 13)   = "Bill" 'type=>Bill,Inventory Adjust,Invoice
+                                range_inventory_valuation.Cells(inv_valuation_id, 14)   = pbCode 'reference
+                                range_inventory_valuation.Cells(inv_valuation_id, 15)   = "" 'customer_id
+                                range_inventory_valuation.Cells(inv_valuation_id, 16)   = vendorId 'vendor_id
+                                range_inventory_valuation.Cells(inv_valuation_id, 17)   = pbDate 'date
+                                range_inventory_valuation.Cells(inv_valuation_id, 18)   = productId 'product_id
+                                range_inventory_valuation.Cells(inv_valuation_id, 19)   = qtyOrderSmall 'small_qty
+                                range_inventory_valuation.Cells(inv_valuation_id, 20)   = qtyOrder 'qty
+                                range_inventory_valuation.Cells(inv_valuation_id, 21)   = costOrder 'cost
+                                range_inventory_valuation.Cells(inv_valuation_id, 22)   = 0 'price
+                                range_inventory_valuation.Cells(inv_valuation_id, 23)   = 0 'on_hand
+                                range_inventory_valuation.Cells(inv_valuation_id, 24)   = 0 'on_hand_small
+                                range_inventory_valuation.Cells(inv_valuation_id, 25)   = costOrder 'avg_cost
+                                range_inventory_valuation.Cells(inv_valuation_id, 26)   = 0 'asset_value
+                                range_inventory_valuation.Cells(inv_valuation_id, 27)   = createdDate 'created
+                                range_inventory_valuation.Cells(inv_valuation_id, 28)   = "" 'date_edited
+                                range_inventory_valuation.Cells(inv_valuation_id, 29)   = 0 'is_refer_gm_id
+                                range_inventory_valuation.Cells(inv_valuation_id, 30)   = 0 'avg_refer
+                                range_inventory_valuation.Cells(inv_valuation_id, 31)   = 1 'is_var_cost
+                                range_inventory_valuation.Cells(inv_valuation_id, 32)   = 0 'is_adjust_value
+                                'range_inventory_valuation.Cells(inv_valuation_id, 33)   = 1 'is_active
 
-                            If checkExistProductInvTotalDetail > 0  Then
-                                For j = 8 To lastRowInvTotalDetail
-                                    If (ws_pb_total_detail.Cells(j,3).Value * 1 = productId * 1  AND ws_pb_total_detail.Cells(j,6).Value = locationId AND ws_pb_total_detail.Cells(j,7).Value = lotsNumber AND ws_pb_total_detail.Cells(j,8).Value = expiredDate And ws_pb_total_detail.Cells(j,9).Value = pbDate) Then
-                                        'update  inventory total detail
-                                        ws_pb_total_detail.Cells(j,13) = ws_pb_total_detail.Cells(j,13) * 1 + qtyOrderSmall 'total qty sale 
-                                        Exit For
-                                    End If
-                                Next j
-                            ElseIf checkExistProductInvTotalDetail = 0 Then
-                                'insert New record inventory total detail
-                                ' debug.Print "checkExistProductInvTotalDetail=" & checkExistProductInvTotalDetail & ",inv_total_detail_id=" & inv_total_detail_id
-                                range_inventory_total_detail.Cells(inv_total_detail_id,1)   = productId 'product id
-                                range_inventory_total_detail.Cells(inv_total_detail_id,2)   = productCode 'product code
-                                range_inventory_total_detail.Cells(inv_total_detail_id,3)   = productName 'product name
-                                range_inventory_total_detail.Cells(inv_total_detail_id,4)   = locationId 'location id
-                                range_inventory_total_detail.Cells(inv_total_detail_id,5)   = lotsNumber 'lots number
+                                'General Ledger Detail (Product Inventory)
+                                gld_inventory_id = ws_gld.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                ws_gld_data.Cells(gld_inventory_id,1)  = gld_inventory_id 'id
+                                ws_gld_data.Cells(gld_inventory_id,2)  = gl_id 'general_ledger_id
+                                ws_gld_data.Cells(gld_inventory_id,3)  = coaInventory 'chart_account_id =3
+                                ws_gld_data.Cells(gld_inventory_id,4)  = 1 'company_id
+                                ws_gld_data.Cells(gld_inventory_id,5)  = branchId 'branch id
+                                ws_gld_data.Cells(gld_inventory_id,6)  = locationGroupId 'location group id
+                                ws_gld_data.Cells(gld_inventory_id,7)  = locationId 'location id
+                                ws_gld_data.Cells(gld_inventory_id,8)  = productId 'product_id
+                                ws_gld_data.Cells(gld_inventory_id,11) = inv_valuation_id 'inventory_valuation_id
+                                ws_gld_data.Cells(gld_inventory_id,12) = 0 'inventory_valuation_is_debit
+                                ws_gld_data.Cells(gld_inventory_id,13) = pb_detail_id 'purchase bill detail id
+                                ws_gld_data.Cells(gld_inventory_id,16) = "Bill" 'type=> Bill,Inventory Adjust,Invoice,Invoice Payment,Pay Bill,POS,Purchase Bill Payment,Receive Payment,Retained Earning 
+                                ws_gld_data.Cells(gld_inventory_id,17) = totalAmountItem 'debit total amount before discount
+                                ws_gld_data.Cells(gld_inventory_id,18) = 0 'credit
+                                ws_gld_data.Cells(gld_inventory_id,19) = "ICS: PB # " & pbCode & " Product # " & productCode & " " &  productName 'memo
+                                ws_gld_data.Cells(gld_inventory_id,20) = vendorId 'vendor_id
+                                ws_gld_data.Cells(gld_inventory_id,24) = 1 'class_id
+                                ws_gld_data.Cells(gld_inventory_id,25) = 1 'is_active
+                                ws_gld_data.Cells(gld_inventory_id,26) = pbWeek 'week
+                                ws_gld_data.Cells(gld_inventory_id,27) = pbMonth 'month
+                                ws_gld_data.Cells(gld_inventory_id,28) = pbYear 'year
+                                gld_inventory_id = gld_inventory_id + 1
+
+                                If (totalDisItem > 0) Then
+                                    'insert general ledger detail Accounts Receivable
+                                    gld_discount_id = ws_gld.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                    ws_gld_data.Cells(gld_discount_id,1)  = gld_discount_id 'id
+                                    ws_gld_data.Cells(gld_discount_id,2)  = gl_id 'general_ledger_id
+                                    ws_gld_data.Cells(gld_discount_id,3)  = coaPurchaseDiscount 'chart_account_id
+                                    ws_gld_data.Cells(gld_discount_id,4)  = 1 'company_id
+                                    ws_gld_data.Cells(gld_discount_id,5)  = branchId 'branch id
+                                    ws_gld_data.Cells(gld_discount_id,6)  = locationGroupId 'location group id
+                                    ws_gld_data.Cells(gld_discount_id,7)  = locationId 'location id
+                                    ws_gld_data.Cells(gld_discount_id,13) = pb_detail_id 'purchase bill detail id
+                                    ws_gld_data.Cells(gld_discount_id,16) = "Bill" 'type
+                                    ws_gld_data.Cells(gld_discount_id,17) = 0 'debit
+                                    ws_gld_data.Cells(gld_discount_id,18) = totalDisItem 'credit
+                                    ws_gld_data.Cells(gld_discount_id,19) = "ICS: PB # " & pbCode & " Product # " & productCode & " " & productName & " Discount" 'memo
+                                    ws_gld_data.Cells(gld_discount_id,20) = vendorId 'vendor_id
+                                    ws_gld_data.Cells(gld_discount_id,24) = 1 'class_id
+                                    ws_gld_data.Cells(gld_discount_id,25) = 1 'is_active
+                                    ws_gld_data.Cells(gld_discount_id,26) = pbWeek 'week
+                                    ws_gld_data.Cells(gld_discount_id,27) = pbMonth 'month
+                                    ws_gld_data.Cells(gld_discount_id,28) = pbYear 'year
+                                    gld_discount_id = gld_discount_id + 1
+                                End If
+
+                                inv_valuation_id = inv_valuation_id + 1
+                                pb_detail_id     = pb_detail_id + 1
+
+                                'insert inventory
+                                Set inventory        = ws_pb.Range("C8:AA8")
+                                inventory_id         = ws_pb.Cells(Rows.Count, "C").End(xlUp).Row - 6
+
+                                inventory.Cells(inventory_id, 1)   = inventory_id 'id
+                                inventory.Cells(inventory_id, 2)   = productId 'product id
+                                inventory.Cells(inventory_id, 3)   = productCode 'product code
+                                inventory.Cells(inventory_id, 4)   = productName 'product name
+                                inventory.Cells(inventory_id, 5)   = pbDate 'inventory date
+                                inventory.Cells(inventory_id, 6)   = locationId 'location id
+                                inventory.Cells(inventory_id, 7)   = locationGroupId 'location group id
+                                inventory.Cells(inventory_id, 8)   = "Purchase" 'inventory type (Inv Adj,Purchase,Sale,Void Sale...)
+                                inventory.Cells(inventory_id, 10)   = vendorId 'vendor id
+                                inventory.Cells(inventory_id, 15)  = pb_id 'Purchase Bill Id
+                                inventory.Cells(inventory_id, 19)  = qtyOrderSmall  'Qty
+                                inventory.Cells(inventory_id, 20)  = unitCost 'Unit Cost 
+                                inventory.Cells(inventory_id, 21)  = 0 'Unit Price
+                                inventory.Cells(inventory_id, 22)  = 1 'status
+                                inventory.Cells(inventory_id, 23)  = lotsNumber 'Lots Number, 
                                 If (expiredDate > 0) Then 
-                                range_inventory_total_detail.Cells(inv_total_detail_id,6)   = expiredDate 'expired date
-                                Else
-                                range_inventory_total_detail.Cells(inv_total_detail_id,6)   = "" 'expired date
+                                inventory.Cells(inventory_id, 24)  = expiredDate 'Expired Date
+                                Else 
+                                inventory.Cells(inventory_id, 24)  = "" 'Expired Date
                                 End If
-                                range_inventory_total_detail.Cells(inv_total_detail_id,5)   = "" 'lots number
-                                range_inventory_total_detail.Cells(inv_total_detail_id,6)   = "" 'expired date
-                                range_inventory_total_detail.Cells(inv_total_detail_id,7)   = pbDate 'date
-                                range_inventory_total_detail.Cells(inv_total_detail_id,8)   = 0 'total adjustment
-                                range_inventory_total_detail.Cells(inv_total_detail_id,9)   = 0 'total sales invoice
-                                range_inventory_total_detail.Cells(inv_total_detail_id,10)  = 0 'Total Pos
-                                range_inventory_total_detail.Cells(inv_total_detail_id,11)  = qtyOrderSmall 'Total Purchase Bill
-                                range_inventory_total_detail.Cells(inv_total_detail_id,12)  = 0 'Total Purchase Return
-                                range_inventory_total_detail.Cells(inv_total_detail_id,13)  = 0 'Total Sales Return
-                                range_inventory_total_detail.Cells(inv_total_detail_id,14)  = 0 'Total Transfer Order In
-                                range_inventory_total_detail.Cells(inv_total_detail_id,15)  = 0 'Total Transfer Order Out
-                                range_inventory_total_detail.Cells(inv_total_detail_id,16)  = 0 'Total Order
-                                inv_total_detail_id = inv_total_detail_id + 1
+                                inventory.Cells(inventory_id, 25)  = createdDate 'created date
+                                inventory.Cells(inventory_id, 26)  = pbWeek 'week
+                                inventory.Cells(inventory_id, 27)  = pbMonth 'month
+                                inventory.Cells(inventory_id, 28)  = pbYear 'year
+                                inventory_id = inventory_id + 1
+
+                                'Insert/Update 1_group_totals               
+                                Set invGroupTotal        = ws_group_total.Range("C8:S8")
+                                invGroupTotalId          = ws_group_total.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                LastRowInvGroupTotal = ws_group_total.Cells(Rows.Count, "C").End(xlUp).Row
+                                ' debug.Print "checkExistItemInvGroupTotal=" & checkExistItemInvGroupTotal & ",LastRowInvGroupTotal=" & LastRowInvGroupTotal
+                                If checkExistItemInvGroupTotal > 0 Then
+                                    qtyInvAdj    = 0
+                                    qtySale      = 0
+                                    qtySaleFree  = 0
+                                    qtyPos       = 0
+                                    qtyPosFree   = 0
+                                    qtyPb        = 0
+                                    qtyPr        = 0
+                                    qtySr        = 0
+                                    qtySrFree    = 0
+                                    qtyToIn      = 0
+                                    qtyToOut     = 0
+                                    For i = 8 To LastRowInvGroupTotal
+                                        'update inventory total
+                                        If ws_group_total.Cells(i,3).Value * 1 = productId * 1 And ws_group_total.Cells(i,6).Value = locationGroupId And ws_group_total.Cells(i,7).Value = locationId And ws_group_total.Cells(i,8).Value = lotsNumber  And ws_group_total.Cells(i,9).Value = expiredDate Then
+                                            qtyInvAdj    = ws_group_total.Cells(i, 11) * 1
+                                            qtySale      = ws_group_total.Cells(i, 12) * 1
+                                            qtyPos       = ws_group_total.Cells(i, 13) * 1
+                                            qtyPb        = ws_group_total.Cells(i, 14) * 1
+                                            qtyPr        = ws_group_total.Cells(i, 15) * 1
+                                            qtySr        = ws_group_total.Cells(i, 16) * 1
+                                            qtyToIn      = ws_group_total.Cells(i, 17) * 1
+                                            qtyToOut     = ws_group_total.Cells(i, 18) * 1
+
+                                            stockIn      = qtyOrderSmall + (qtyInvAdj + qtyPb + qtySr + qtyToIn)
+                                            stockOut     = qtySale + qtyPos + qtyPr + qtyToOut '(qty + qtyFree) = New Qty Sales
+                                            totalQty     = stockIn - stockOut
+
+                                            ws_group_total.Cells(i,10)  = totalQty 'total qty
+                                            ws_group_total.Cells(i,14)  = qtyPb + qtyOrderSmall 'total qty purchase bill
+                                            Exit For
+                                        End If
+                                    Next i
+                                Else
+                                    'insert New record inventory group total invGroupTotal  ' lotsNumber,expiredDate
+                                    invGroupTotal.Cells(invGroupTotalId,1)   = productId 'product id 
+                                    invGroupTotal.Cells(invGroupTotalId,2)   = productCode 'product code
+                                    invGroupTotal.Cells(invGroupTotalId,3)   = productName 'product name
+                                    invGroupTotal.Cells(invGroupTotalId,4)   = locationGroupId 'location group id
+                                    invGroupTotal.Cells(invGroupTotalId,5)   = locationId 'location id
+                                    If (lotsNumber<> "") Then 
+                                    invGroupTotal.Cells(invGroupTotalId,6)   = lotsNumber 'lote number
+                                    Else
+                                    invGroupTotal.Cells(invGroupTotalId,6)   = "" 'lote number
+                                    End If
+                                    If (expiredDate >0) Then 
+                                    invGroupTotal.Cells(invGroupTotalId,7)   = expiredDate 'expired date
+                                    Else
+                                    invGroupTotal.Cells(invGroupTotalId,7)   = "" 'expired date
+                                    End If
+                                    invGroupTotal.Cells(invGroupTotalId,8)   = qtyOrderSmall 'total qty ending
+                                    invGroupTotal.Cells(invGroupTotalId,9)   = 0 'total qty adjustment
+                                    invGroupTotal.Cells(invGroupTotalId,10)  = 0 'total qty sale
+                                    invGroupTotal.Cells(invGroupTotalId,11)  = 0 'Total Pos
+                                    invGroupTotal.Cells(invGroupTotalId,12)  = qtyOrderSmall 'Total PB
+                                    invGroupTotal.Cells(invGroupTotalId,13)  = 0 'Total PR
+                                    invGroupTotal.Cells(invGroupTotalId,14)  = 0 'Total SR
+                                    invGroupTotal.Cells(invGroupTotalId,15)  = 0 'Total TO In
+                                    invGroupTotal.Cells(invGroupTotalId,16)  = 0 'Total TO Out
+                                    invGroupTotal.Cells(invGroupTotalId,17)  = 0 'Total Order
+                                    invGroupTotalId = invGroupTotalId + 1
+                                End If
+
+                                'insert / update 1_group_total_detail
+                                Set invTotalGroupDetail  = ws_group_total_detail.Range("C8:Q8")
+                                invTotalGroupDetailId    = ws_group_total_detail.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                lastInvTotalGroupDetail  = ws_group_total_detail.Cells(Rows.Count, "C").End(xlUp).Row
+                                ' debug.Print "checkExistItemInvGroupTotalDetail=" & checkExistItemInvGroupTotalDetail & ",lastInvTotalGroupDetail=" & lastInvTotalGroupDetail
+                                If checkExistItemInvGroupTotalDetail > 0  Then
+                                    For j = 8 To lastInvTotalGroupDetail
+                                        If (ws_group_total_detail.Cells(j,3).Value * 1 = productId * 1 And ws_group_total_detail.Cells(j,6).Value * 1 = locationGroupId And ws_group_total_detail.Cells(j,7).Value * 1 = locationId And ws_group_total_detail.Cells(j,8).Value = pbDate) Then
+                                            'update  inventory total detail
+                                            ws_group_total_detail.Cells(j,12) = ws_group_total_detail.Cells(j,12) * 1 + qtyOrderSmall 'total qty purchase bill 
+                                            Exit For
+                                        End If
+                                    Next j
+                                Else
+                                    'insert New record inventory total detail
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,1)   = productId 'product id
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,2)   = productCode 'product code
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,3)   = productName 'product name
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,4)   = locationGroupId 'location id
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,5)   = locationId 'location id
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,6)   = pbDate 'date
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,7)   = 0 'total adjustment
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,8)   = 0 'total sale invoice
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,9)   = 0 'Total Pos
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,10)  = qtyOrderSmall 'Total Purchase Bill
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,11)  = 0 'Total Purchase Return
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,12)  = 0 'Total Sales Return
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,13)  = 0 'Total Transfer Order In
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,14)  = 0 'Total Transfer Order Out
+                                    invTotalGroupDetail.Cells(invTotalGroupDetailId,15)  = 0 'Total Order
+                                    invTotalGroupDetailId = invTotalGroupDetailId + 1
+                                End If
+
+                                'update & insert inventory total
+                                Set range_inventory_total  = ws_pb_total.Range("C8:T8")
+                                inventory_total_id         = ws_pb_total.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                LastRowInvTotal            = ws_pb_total.Cells(Rows.Count, "C").End(xlUp).Row
+                                ' debug.print "checkExistProductInvTotal=" & checkExistProductInvTotal
+                                If checkExistProductInvTotal > 0 Then
+                                    qtyInvAdj    = 0
+                                    qtySale      = 0
+                                    qtySaleFree  = 0
+                                    qtyPos       = 0
+                                    qtyPosFree   = 0
+                                    qtyPb        = 0
+                                    qtyPr        = 0
+                                    qtySr        = 0
+                                    qtySrFree    = 0
+                                    qtyToIn      = 0
+                                    qtyToOut     = 0
+                                    For i = 8 To LastRowInvTotal
+                                        'update inventory total lotsNumber expiredDate
+                                        ' debug.Print "product=>" & ws_pb_total.Cells(i,3).Value * 1 & "=" & productId * 1  & "=>lotsNumber : " &  ws_pb_total.Cells(i,6).Value  & "=" &  lotsNumber & "=>expiredDate : " &  ws_pb_total.Cells(i,7).Value  & "=" &  expiredDate 
+                                        If ws_pb_total.Cells(i,3).Value * 1 = productId * 1 And ws_pb_total.Cells(i,6).Value = lotsNumber And ws_pb_total.Cells(i,7).Value = expiredDate  Then
+                                            qtyInvAdj    = ws_pb_total.Cells(i, 9) * 1
+                                            qtySale      = ws_pb_total.Cells(i, 10) * 1
+                                            qtySaleFree  = ws_pb_total.Cells(i, 11) * 1
+                                            qtyPos       = ws_pb_total.Cells(i, 12) * 1
+                                            qtyPosFree   = ws_pb_total.Cells(i, 13) * 1
+                                            qtyPb        = ws_pb_total.Cells(i, 14) * 1
+                                            qtyPr        = ws_pb_total.Cells(i, 15) * 1
+                                            qtySr        = ws_pb_total.Cells(i, 16) * 1
+                                            qtySrFree    = ws_pb_total.Cells(i, 17) * 1
+                                            qtyToIn      = ws_pb_total.Cells(i, 18) * 1
+                                            qtyToOut     = ws_pb_total.Cells(i, 19) * 1
+
+                                            stockIn      = qtyOrderSmall + qtyInvAdj + qtyPb + qtySr + qtySrFree + qtyToIn 
+                                            stockOut     = qtySale + qtySaleFree + qtyPos + qtyPosFree + qtyPr + qtyToOut '(qty + qtyFree) = New Qty Sales
+                                            totalQty     = stockIn - stockOut
+                                            'range_inventory_total, ws_pb_total
+                                            ws_pb_total.Cells(i,8)  = totalQty 'total qty
+                                            ws_pb_total.Cells(i,14) = qtyPb + qtyOrderSmall 'total qty sale
+                                            Exit For
+                                        End If
+                                    Next i
+                                ElseIf checkExistProductInvTotal = 0 Then
+                                    'insert New record inventory total
+                                    ' debug.Print "checkExistProductInvTotal=" & checkExistProductInvTotal & ",inventory_total_id=" & inventory_total_id
+                                    range_inventory_total.Cells(inventory_total_id,1)   = productId 'product id 
+                                    range_inventory_total.Cells(inventory_total_id,2)   = productCode 'product code
+                                    range_inventory_total.Cells(inventory_total_id,3)   = productName 'product name
+                                    range_inventory_total.Cells(inventory_total_id,4)   = lotsNumber 'lots number
+                                    If (expiredDate > 0) Then 
+                                    range_inventory_total.Cells(inventory_total_id,5)   = expiredDate 'expired date
+                                    Else
+                                    range_inventory_total.Cells(inventory_total_id,5)   = "" 'expired date
+                                    End If
+                                    range_inventory_total.Cells(inventory_total_id,6)   = qtyOrderSmall 'total qty ending
+                                    range_inventory_total.Cells(inventory_total_id,7)   = 0 'total qty adjustment
+                                    range_inventory_total.Cells(inventory_total_id,8)   = 0 'total qty sale
+                                    range_inventory_total.Cells(inventory_total_id,9)   = 0 'total qty free sale
+                                    range_inventory_total.Cells(inventory_total_id,10)  = 0 'Total Pos
+                                    range_inventory_total.Cells(inventory_total_id,11)  = 0 'Total Pos Free
+                                    range_inventory_total.Cells(inventory_total_id,12)  = qtyOrderSmall 'Total PB
+                                    range_inventory_total.Cells(inventory_total_id,13)  = 0 'Total PR
+                                    range_inventory_total.Cells(inventory_total_id,14)  = 0 'Total SR
+                                    range_inventory_total.Cells(inventory_total_id,15)  = 0 'Total SR Free
+                                    range_inventory_total.Cells(inventory_total_id,16)  = 0 'Total TO In
+                                    range_inventory_total.Cells(inventory_total_id,17)  = 0 'Total TO Out
+                                    range_inventory_total.Cells(inventory_total_id,18)  = 0 'Total Order
+                                    inventory_total_id = inventory_total_id + 1
+                                End If
+
+                                'update & insert inventory total detail
+                                Set range_inventory_total_detail = ws_pb_total_detail.Range("C8:R8")
+                                inv_total_detail_id              = ws_pb_total_detail.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                lastRowInvTotalDetail            = ws_pb_total_detail.Cells(Rows.Count, "C").End(xlUp).Row
+
+                                If checkExistProductInvTotalDetail > 0  Then
+                                    For j = 8 To lastRowInvTotalDetail
+                                        If (ws_pb_total_detail.Cells(j,3).Value * 1 = productId * 1  AND ws_pb_total_detail.Cells(j,6).Value = locationId AND ws_pb_total_detail.Cells(j,7).Value = lotsNumber AND ws_pb_total_detail.Cells(j,8).Value = expiredDate And ws_pb_total_detail.Cells(j,9).Value = pbDate) Then
+                                            'update  inventory total detail
+                                            ws_pb_total_detail.Cells(j,13) = ws_pb_total_detail.Cells(j,13) * 1 + qtyOrderSmall 'total qty sale 
+                                            Exit For
+                                        End If
+                                    Next j
+                                ElseIf checkExistProductInvTotalDetail = 0 Then
+                                    'insert New record inventory total detail
+                                    ' debug.Print "checkExistProductInvTotalDetail=" & checkExistProductInvTotalDetail & ",inv_total_detail_id=" & inv_total_detail_id
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,1)   = productId 'product id
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,2)   = productCode 'product code
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,3)   = productName 'product name
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,4)   = locationId 'location id
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,5)   = lotsNumber 'lots number
+                                    If (expiredDate > 0) Then 
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,6)   = expiredDate 'expired date
+                                    Else
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,6)   = "" 'expired date
+                                    End If
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,5)   = "" 'lots number
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,6)   = "" 'expired date
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,7)   = pbDate 'date
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,8)   = 0 'total adjustment
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,9)   = 0 'total sales invoice
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,10)  = 0 'Total Pos
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,11)  = qtyOrderSmall 'Total Purchase Bill
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,12)  = 0 'Total Purchase Return
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,13)  = 0 'Total Sales Return
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,14)  = 0 'Total Transfer Order In
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,15)  = 0 'Total Transfer Order Out
+                                    range_inventory_total_detail.Cells(inv_total_detail_id,16)  = 0 'Total Order
+                                    inv_total_detail_id = inv_total_detail_id + 1
+                                End If
+                            '**************Insert transaction service*************
+                            ElseIf (itemType = 2) Then
+                                ws_pb_service.Cells(pb_service_id + 7, "C")   = pb_service_id 'id
+                                ws_pb_service.Cells(pb_service_id + 7, "D")   = pb_id 'pb id
+                                ws_pb_service.Cells(pb_service_id + 7, "E")   = pbCode 'pb number
+                                ws_pb_service.Cells(pb_service_id + 7, "F")   = pbDate 'pb date
+                                ws_pb_service.Cells(pb_service_id + 7, "G")   = vendorId 'vendor id
+                                ws_pb_service.Cells(pb_service_id + 7, "H")   = productId 'service Id
+                                ws_pb_service.Cells(pb_service_id + 7, "I")   = productCode 'service code
+                                ws_pb_service.Cells(pb_service_id + 7, "J")   = productName 'service
+                                ws_pb_service.Cells(pb_service_id + 7, "K")   = qty 'qty
+                                ws_pb_service.Cells(pb_service_id + 7, "L")   = qtyFree 'qty free
+                                ws_pb_service.Cells(pb_service_id + 7, "M")   = productUoM 'uom
+                                ws_pb_service.Cells(pb_service_id + 7, "N")   = productUomId 'uom id
+                                ws_pb_service.Cells(pb_service_id + 7, "O")   = conversion 'uom smallValUoM
+                                ws_pb_service.Cells(pb_service_id + 7, "P")   = "" 'Dis ID
+                                ws_pb_service.Cells(pb_service_id + 7, "Q")   = disItem 'Dis Amount
+                                ws_pb_service.Cells(pb_service_id + 7, "R")   = "" 'Dis Percent
+                                ws_pb_service.Cells(pb_service_id + 7, "S")   = unitCost 'Default cost
+                                ws_pb_service.Cells(pb_service_id + 7, "T")   = costOrder 'New Unit Cost
+                                ws_pb_service.Cells(pb_service_id + 7, "U")   = totalDisItem 'Total Dis Item
+                                ws_pb_service.Cells(pb_service_id + 7, "V")   = unitCost 'unit cost
+                                ws_pb_service.Cells(pb_service_id + 7, "W")   = totalCost 'total cost
+                                ws_pb_service.Cells(pb_service_id + 7, "X")   = remark 'Note
+                                ws_pb_service.Cells(pb_service_id + 7, "Y")   = 1 'status
+                                ws_pb_service.Cells(pb_service_id + 7, "Z")   = pbWeek 'week
+                                ws_pb_service.Cells(pb_service_id + 7, "AA")  = pbMonth 'month
+                                ws_pb_service.Cells(pb_service_id + 7, "AB")  = pbYear 'year
+
+                                'General Ledger Detail (service)
+                                gld_inventory_id = ws_gld.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                ws_gld_data.Cells(gld_inventory_id,1)  = gld_inventory_id 'id
+                                ws_gld_data.Cells(gld_inventory_id,2)  = gl_id 'general_ledger_id
+                                ws_gld_data.Cells(gld_inventory_id,3)  = coaPurchaseService 'chart_account_id = 24
+                                ws_gld_data.Cells(gld_inventory_id,4)  = 1 'company_id
+                                ws_gld_data.Cells(gld_inventory_id,5)  = branchId 'branch id
+                                ws_gld_data.Cells(gld_inventory_id,8)  = productId 'service id
+                                ws_gld_data.Cells(gld_inventory_id,12) = 0 'inventory_valuation_is_debit
+                                ws_gld_data.Cells(gld_inventory_id,13) = pb_service_id 'purchase bill detail id
+                                ws_gld_data.Cells(gld_inventory_id,16) = "Bill" 'type=> Bill,Inventory Adjust,Invoice,Invoice Payment,Pay Bill,POS,Purchase Bill Payment,Receive Payment,Retained Earning 
+                                ws_gld_data.Cells(gld_inventory_id,17) = totalAmountItem 'debit total amount before discount
+                                ws_gld_data.Cells(gld_inventory_id,18) = 0 'credit
+                                ws_gld_data.Cells(gld_inventory_id,19) = "ICS: PB # " & pbCode & " Service # " & productCode & " " &  productName 'memo
+                                ws_gld_data.Cells(gld_inventory_id,20) = vendorId 'vendor_id
+                                ws_gld_data.Cells(gld_inventory_id,24) = 1 'class_id
+                                ws_gld_data.Cells(gld_inventory_id,25) = 1 'is_active
+                                ws_gld_data.Cells(gld_inventory_id,26) = pbWeek 'week
+                                ws_gld_data.Cells(gld_inventory_id,27) = pbMonth 'month
+                                ws_gld_data.Cells(gld_inventory_id,28) = pbYear 'year
+                                gld_inventory_id = gld_inventory_id + 1
+
+                                If (totalDisItem > 0) Then
+                                    'insert general ledger detail Accounts Receivable
+                                    gld_discount_id = ws_gld.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                                    ws_gld_data.Cells(gld_discount_id,1)  = gld_discount_id 'id
+                                    ws_gld_data.Cells(gld_discount_id,2)  = gl_id 'general_ledger_id
+                                    ws_gld_data.Cells(gld_discount_id,3)  = coaPurchaseDiscount 'chart_account_id
+                                    ws_gld_data.Cells(gld_discount_id,4)  = 1 'company_id
+                                    ws_gld_data.Cells(gld_discount_id,5)  = branchId 'branch id
+                                    ws_gld_data.Cells(gld_discount_id,13) = pb_service_id 'purchase bill detail id
+                                    ws_gld_data.Cells(gld_discount_id,16) = "Bill" 'type
+                                    ws_gld_data.Cells(gld_discount_id,17) = 0 'debit
+                                    ws_gld_data.Cells(gld_discount_id,18) = totalDisItem 'credit
+                                    ws_gld_data.Cells(gld_discount_id,19) = "ICS: PB # " & pbCode & " Service # " & productCode & " " & productName & " Discount" 'memo
+                                    ws_gld_data.Cells(gld_discount_id,20) = vendorId 'vendor_id
+                                    ws_gld_data.Cells(gld_discount_id,24) = 1 'class_id
+                                    ws_gld_data.Cells(gld_discount_id,25) = 1 'is_active
+                                    ws_gld_data.Cells(gld_discount_id,26) = pbWeek 'week
+                                    ws_gld_data.Cells(gld_discount_id,27) = pbMonth 'month
+                                    ws_gld_data.Cells(gld_discount_id,28) = pbYear 'year
+                                    gld_discount_id = gld_discount_id + 1
+                                End If
+
+                                pb_service_id = pb_service_id + 1
                             End If
                         End If
                     Next a

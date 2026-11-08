@@ -36,7 +36,7 @@ Private Sub PurchaseBillComboBox_Change()
 
     'workbook/worksheet variable
     Dim activeWorkbook, wbDatabase As Workbook
-    Dim ws_gld, ws_gl, ws, ws_inv_data, ws_inv_item_data,ws_file_setting, ws_print_pb As Worksheet
+    Dim ws_gld, ws_gl, ws, ws_inv_data, ws_inv_item_data,ws_file_setting, ws_print_pb,ws_pb_service As Worksheet
 
     'vendor variable
     Dim vendorId, vendorName As String
@@ -46,7 +46,7 @@ Private Sub PurchaseBillComboBox_Change()
     'branch variable
     Dim branchId, branchName As String
     Dim branchListRange As Range
-    Dim bankName, accountName, accountNo, branchAddressKh, branchTel, branchEmail As String
+    Dim bankName, accountName, accountNo, branchAddressKh, branchTel, branchEmail,socialNetwork As String
 
     'product variable
     Dim productId, qty, qtyFree, productCode, productName, productUoM As String
@@ -56,8 +56,8 @@ Private Sub PurchaseBillComboBox_Change()
     Dim pbDate, pbDueDate As Date
     Dim statusNote, priceTypeId, discountTypeId, PbCode, pbNote As String
     Dim purchaseId, netDays, paymentTermId, conversion, qtyOrder, qtyOrderSmall, invValId, pbNo, invId, invDetailId, exchangeRate As Integer
-    Dim lastPurchaseId, countPurchaseDetailItem, vatChartAccId, lastPbDetailId As Integer
-    Dim rngPurchaseBillList, rowPbCode, rngPbDetail, rangePrintInvItem, rangeInvDetailId  As Range
+    Dim lastPurchaseId, countPurchaseDetailItem,countPurchaseServiceItem, vatChartAccId, lastPbDetailId As Integer
+    Dim rngPbServiceId, rngPurchaseBillList, rowPbCode, rngPbDetail, rangePrintInvItem, rangeInvDetailId  As Range
     Dim criteriaRange1, criteriaRange2 As Range
     Dim countItem As Integer
 
@@ -75,7 +75,7 @@ Private Sub PurchaseBillComboBox_Change()
     Set rangePrintInvItem = ws_print_pb.Range("print_pb_items")
 
     If (Me.PurchaseBillComboBox.Value <> "Please select purchase code" And Me.PurchaseBillComboBox.Value <> "") Then 'checkDatabaseFile = TRUE And
-        rangePrintInvItem.ClearContents
+        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
         databasePath        = ws_file_setting.Range("database_path").Value
         databaseFile        = databasePath & "database_kscm.xlsm"
@@ -89,14 +89,17 @@ Private Sub PurchaseBillComboBox_Change()
         Set wbDatabase       = Workbooks("database_kscm.xlsm")
         Set ws_inv_data      = wbDatabase.Sheets("PurchaseBill")
         Set ws_inv_item_data = wbDatabase.Sheets("PurchaseBillDetail")
-        lastPurchaseId       = ws_inv_data.Cells(Rows.Count, "C").End(xlUp).Row
-        lastPbDetailId       = ws_inv_item_data.Cells(Rows.Count, "C").End(xlUp).Row
+        Set ws_pb_service    = wbDatabase.Sheets("PurchaseBillService")
+        ' lastPurchaseId       = ws_inv_data.Cells(Rows.Count, "C").End(xlUp).Row
+        ' lastPbDetailId       = ws_inv_item_data.Cells(Rows.Count, "C").End(xlUp).Row
 
-        Set rngPurchaseBillList  = ws_inv_data.Range("C8:AP" & lastPurchaseId)
-        Set rangeInvDetailId     = ws_inv_item_data.Range("C8:C" & lastPbDetailId)
-        Set rngPbDetail          = ws_inv_item_data.Range("C8:Z" & lastPbDetailId)
+        Set rngPurchaseBillList  = ws_inv_data.Range("C8:AP" & ws_inv_data.Cells(Rows.Count, "C").End(xlUp).Row)
+        Set rangeInvDetailId     = ws_inv_item_data.Range("C8:C" & ws_inv_item_data.Cells(Rows.Count, "C").End(xlUp).Row)
+        Set rngPbServiceId       = ws_pb_service.Range("C8:C" & ws_pb_service.Cells(Rows.Count, "C").End(xlUp).Row)
+        Set rngPbDetail          = ws_inv_item_data.Range("C8:Z" & ws_inv_item_data.Cells(Rows.Count, "C").End(xlUp).Row)
         
         countPurchaseDetailItem  = Application.CountA(rangeInvDetailId)
+        countPurchaseServiceItem = Application.CountA(rngPbServiceId)
         purchaseId               = CInt(Split(Me.PurchaseBillComboBox.Value, "#")(1))
         PbCode                   = Split(Me.PurchaseBillComboBox.Value, "#")(0)
         
@@ -147,7 +150,7 @@ Private Sub PurchaseBillComboBox_Change()
         branchAddressKh  = Application.VLookup(branchId, branchListRange, 22, False)
         branchTel        = Application.VLookup(branchId, branchListRange, 18, False)
         branchEmail      = Application.VLookup(branchId, branchListRange, 20, False)
-       
+        socialNetwork    = Application.VLookup(branchId, branchListRange, 21, False)
         If IsError(companyNameKh) Then
             companyNameKh = ""
         End If
@@ -181,6 +184,7 @@ Private Sub PurchaseBillComboBox_Change()
         ws_print_pb.Range("print_pb_branch_address_kh").Value = branchAddressKh
         ws_print_pb.Range("print_pb_branch_telephone").Value = branchTel
         ws_print_pb.Range("print_pb_branch_email").Value = branchEmail
+        ws_print_pb.Range("print_pb_social_network").Value = socialNetwork
 
         'vendor Information
         ws_print_pb.Range("print_pb_vendor_name_kh").Value = vendorNameKh
@@ -193,20 +197,85 @@ Private Sub PurchaseBillComboBox_Change()
         ws_print_pb.Range("C27" & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = False 'Show all row in range print invoice
         If purchaseId > 0 And countPurchaseDetailItem > 0 Then
             k = 0
-            For j = 1 To countPurchaseDetailItem
-                If (rngPbDetail.Cells(j, 2) = purchaseId) Then
-                    ' disItem             = rngPbDetail.Cells(j,6)
-                    ' totalDisItem        = rngPbDetail.Cells(j,6)
-                    productCode     = rngPbDetail.Cells(j, 8)
-                    productName     = rngPbDetail.Cells(j, 9)           'MID(Split(rngPbDetail.Cells(j, 7),"#")(0), 7, 100)
-                    qty             = rngPbDetail.Cells(j, 10)
-                    qtyFree         = rngPbDetail.Cells(j, 11)
-                    productUoM      = Application.VLookup(Mid(rngPbDetail.Cells(j, 13), 1, 3) * 1, rngUom, 5, False)
-                    unitCost        = rngPbDetail.Cells(j, 20)
-                    totalCost       = rngPbDetail.Cells(j, 22)
+            For i = 1 To countPurchaseDetailItem
+                If (rngPbDetail.Cells(i, 2) = purchaseId) Then
+                    productCode     = rngPbDetail.Cells(i, 8)
+                    productName     = rngPbDetail.Cells(i, 9)           'MID(Split(rngPbDetail.Cells(i, 7),"#")(0), 7, 100)
+                    qty             = rngPbDetail.Cells(i, 10)
+                    qtyFree         = rngPbDetail.Cells(i, 11)
+                    productUoM      = Application.VLookup(Mid(rngPbDetail.Cells(i, 13), 1, 3) * 1, rngUom, 5, False)
+                    unitCost        = rngPbDetail.Cells(i, 20)
+                    totalCost       = rngPbDetail.Cells(i, 22)
 
                     Set criteriaRange1 = ws_inv_item_data.Range("D8:D" & countPurchaseDetailItem + 7) 'column invoice id
                     Set criteriaRange2 = ws_inv_item_data.Range("AB8:AB" & countPurchaseDetailItem + 7) 'column status
+                    countItem          = Application.COUNTIFS(criteriaRange1,purchaseId,criteriaRange2,1)
+
+                    If (qty > 0) Then
+                        k = k + 1
+                        'set condition to manage page 
+                        ' If (countItem >= 26 AND countItem <= 104) Then '26, 52, 78, 104
+                        '     If (k Mod 26 = 0) Then  '=> limit 26 rows per page
+                        '         ' Debug.Print "***************k=" & k
+                        '         k = k + 1
+                        '     End If
+                        ' Else
+                        '     If (k Mod 13 = 0) Then ' k = 13 => limit 12 rows per page
+                        '         ' Debug.Print "***************k=" & k
+                        '         k = k + 14
+                        '     End If
+                        ' End If
+                        ' debug.Print "k=" & k
+                        rangePrintInvItem.Cells(k, 1) = productCode
+                        rangePrintInvItem.Cells(k, 2) = productName
+                        rangePrintInvItem.Cells(k, 5) = productUoM
+                        rangePrintInvItem.Cells(k, 6) = qty
+                        rangePrintInvItem.Cells(k, 7) = unitCost
+                        rangePrintInvItem.Cells(k, 8) = totalCost
+                        rangePrintInvItem.Cells(k, 9) = totalCost * exchangeRate
+                    End If
+                End If
+            Next i
+
+            '******purchase bill service*****
+            ' C - Id
+            ' D - PB ID
+            ' E - PB Code
+            ' F - PB Date
+            ' G - Vendor Id
+            ' H - Service Id
+            ' I - Service Code
+            ' J - Service Name
+            ' K - Qty
+            ' L - Qty Free
+            ' M - UoM
+            ' N - Uom Id
+            ' O - Conversion
+            ' P - Discount Id
+            ' Q - Discount Amount
+            ' R - Discount Percent
+            ' S - Default Cost
+            ' T - New Cost
+            ' U - Total Dis Item
+            ' V - Unit Cost
+            ' W - Total Cost
+            ' X - Remark
+            ' Y - Status
+            ' Z - Week
+            ' AA - Month
+            ' AB - Year
+            For j = 1 To countPurchaseServiceItem
+                If ws_pb_service.Cells(j + 7, "D") = purchaseId Then
+                    productCode     = ws_pb_service.Cells(j + 7, "I")          
+                    productName     = ws_pb_service.Cells(j + 7, "J")          
+                    qty             = ws_pb_service.Cells(j + 7, "K")
+                    qtyFree         = ws_pb_service.Cells(j + 7, "L")
+                    productUoM      = ws_pb_service.Cells(j + 7, "M") 'Application.VLookup(Mid(ws_pb_service.Cells(j + 7, "M"), 1, 3) * 1, rngUom, 5, False)
+                    unitCost        = ws_pb_service.Cells(j + 7, "V")
+                    totalCost       = ws_pb_service.Cells(j + 7, "W")
+
+                    Set criteriaRange1 = ws_pb_service.Range("D8:D" & countPurchaseServiceItem + 7) 'column purchase bill id
+                    Set criteriaRange2 = ws_pb_service.Range("Y8:Y" & countPurchaseServiceItem + 7) 'column status
                     countItem          = Application.COUNTIFS(criteriaRange1,purchaseId,criteriaRange2,1)
 
                     If (qty > 0) Then
@@ -240,7 +309,7 @@ Private Sub PurchaseBillComboBox_Change()
     Else
         ' MsgBox "Database file doesn't exist."
         ' Exit Sub
-        rangePrintInvItem.ClearContents
+        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
         ws_print_pb.Range("C27:C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
     End If
 

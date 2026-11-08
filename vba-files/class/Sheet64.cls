@@ -8,6 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
+
 ' 1.Id
 ' 2.Inv Adj Id
 ' 3.Ref.Inv.Stock
@@ -99,7 +100,7 @@ Private Sub invAdjComboBox_Change()
     Set ws_product         = activeWorkbook.Sheets("ProductList")
 
     If (Me.invAdjComboBox.Value <> "Please select adjustment code" And Me.invAdjComboBox.Value <> "") Then 'checkDatabaseFile = TRUE And
-        rangePrintInvItem.ClearContents
+        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
         databasePath        = ws_file_setting.Range("database_path").Value
         databaseFile        = databasePath & "database_kscm.xlsm"
@@ -225,7 +226,7 @@ Private Sub invAdjComboBox_Change()
         End If
         ws_print_adj.Range("print_adj_total_cost_usd").Value = grandTotalAmount
     Else
-        rangePrintInvItem.ClearContents
+        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
         ws_print_adj.Range("C27:C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
     End If
     

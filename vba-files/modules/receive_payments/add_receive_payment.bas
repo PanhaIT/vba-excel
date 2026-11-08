@@ -167,9 +167,9 @@ Sub SaveReceivePayment()
         exchangeRate          = 4000
     End If
 
-    totalAmountDue        = FormatNumber(ws_rp.Range("rp_amount_due").Value, 4, , , vbTrue)
-    totalAmountPaid       = FormatNumber(ws_rp.Range("rp_total_paid").Value, 4, , , vbTrue)
-    totalAmountPaidBefore = FormatNumber(ws_rp.Range("rp_amount_paid_before").Value, 4, , , vbTrue)
+    totalAmountDue        = ws_rp.Range("rp_amount_due").Value
+    totalAmountPaid       = ws_rp.Range("rp_total_amount_paid").Value
+    totalAmountPaidBefore = ws_rp.Range("rp_amount_paid_before").Value
     If (totalAmountPaid > totalAmountDue) Then 
         If (rpCurrencyId = 1) Then 'Dollar
             totalAmountPaidKh     = 0
@@ -181,22 +181,31 @@ Sub SaveReceivePayment()
         totalAmountPaid       = totalAmountDue
     Else
         totalAmountPaidKh     = ws_rp.Range("rp_amount_paid_kh").Value
-        totalAmountPaidEn     = FormatNumber(ws_rp.Range("rp_amount_paid_en").Value, 4, , , vbTrue)
+        totalAmountPaidEn     = ws_rp.Range("rp_amount_paid_en").Value
+    End If
+
+    If IsEmpty(ws_rp.Range("rp_discount_kh").Value) Then
+        ws_rp.Range("rp_discount_kh").Value = 0
+    End If
+
+    If IsEmpty(ws_rp.Range("rp_discount_en").Value) Then
+        ws_rp.Range("rp_discount_en").Value = 0
     End If
 
     totalDiscounKh        = ws_rp.Range("rp_discount_kh").Value
-    totalDiscounEn        = FormatNumber(ws_rp.Range("rp_discount_en").Value, 4, , , vbTrue)
+    totalDiscounEn        = ws_rp.Range("rp_discount_en").Value
 
     If (rpCurrencyId = 2) Then 'Dollar
         totalDiscount     = totalDiscounEn * exchangeRate + totalDiscounKh
     Else
         totalDiscount     = totalDiscounEn + totalDiscounKh / exchangeRate
     End If
+    Debug.Print "totalDiscount=" & totalDiscount & " , totalDiscounEn=" & totalDiscounEn & " , totalDiscounKh=" & totalDiscounKh & " , exchangeRate=" & exchangeRate
 
-    grandTotalPaid        = FormatNumber(totalAmountPaid + totalDiscount, 4, , , vbTrue)
+    grandTotalPaid        = totalAmountPaid + totalDiscount
     totalChangeKh         = 0 'ws_rp.Range("rp_amount_change_kh").Value
     totalChangeEn         = 0 'ws_rp.Range("rp_amount_change_en").Value
-    totalBalance          = FormatNumber(ws_rp.Range("rp_total_balance").Value, 4, , , vbTrue) 'rp_total_balance
+    totalBalance          = ws_rp.Range("rp_total_balance").Value 'rp_total_balance
     createdDate           = Format(Now(), "yyyy/mm/dd hh:mm:ss")
 
     Run resetAllFilter()
@@ -208,6 +217,8 @@ Sub SaveReceivePayment()
     End If
 
     'Sales Invoice Status=> -1 = Edit, 1  = issue, 2  = fullfilied ,3  = partial
+    debug.Print "totalBalance=" & totalBalance & " , totalAmountDue=" & totalAmountDue & " , grandTotalPaid=" & grandTotalPaid & " , totalAmountPaid=" & totalAmountPaid
+    exit sub
     If totalBalance = 0 Then
         statusInvoice = 2
         indexColor    = 43

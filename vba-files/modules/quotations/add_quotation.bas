@@ -20,15 +20,40 @@ Public Sub copyPrintNoLetterHead()
    ActiveSheet.Range("quot_print_no_letter_head").select
 End Sub
 
+'**********Quotation Service**********
+' C - Id
+' D - Quote ID
+' E - Quote No.
+' F - Quote Date
+' G - Customer ID
+' H - Service Id
+' I - Service Code
+' J - Service Name
+' K - Qty
+' L - UoM
+' M - Qty Uom Id
+' N - Conversion
+' O - Discount Id
+' P - Discount Amount
+' Q - Discount Percent
+' R - Total Discount
+' S - Unit Cost
+' T - Unit Price
+' U - Total Price
+' V - Status
+' W - Week
+' X - Month
+' Y - Year
+
 Public Sub AddQuotation()
     OnStart
-    Dim ws_quot_data, ws_add_quote,ws_quot As Worksheet
+    Dim ws_quot_data, ws_add_quote,ws_quot,ws_quot_service As Worksheet
     Dim unitPrice, newUnitPrice,unitCostByUom,unitPriceBigUom, totalPrice, totalDeposit,totalDiscount,totalAmount,grandTotalAmount,unitCostBigUom,totalDisItem,disItem,totalVat As Double
     Dim quotStatusNote,customerId,quotSheet,branchId,locationId,priceTypeId,discountTypeId,saleId,saleName As string
     Dim customerName,salesquotNote,quotWeek,quotMonth,quotYear,branchName,msgSave As String
     Dim conversion, qtyOrder,qtyOrderSmall,quotStatus, quotNo, quotDetailId,itemType As Integer
 
-    Dim productId, qty, qtyFree,convertion,smallValUom,vatPercent,vatSettingId,vatCal As Integer
+    Dim quotServiceId, productId, qty, qtyFree,convertion,smallValUom,vatPercent,vatSettingId,vatCal As Integer
     Dim productCode, productName, productUoM,quotCode, lotsNumber As String
 
     Dim item_row, quotDetailData, quotData, invTotal,ws_gld_data,ws_gl_data, invValuation As Range
@@ -99,13 +124,13 @@ Public Sub AddQuotation()
         vatSettingId  = 1
     End If
     vatCal            = ActiveSheet.Range("quot_vat_cal_id").Value
-    totalVat          = FormatNumber(ActiveSheet.Range("quot_total_vat").Value, 4, , , vbTrue)
+    totalVat          = FormatNumber(ActiveSheet.Range("quot_total_vat").Value, 2, , , vbTrue)
 
-    totalDeposit      = FormatNumber(ActiveSheet.Range("quot_deposit").Value, 4, , , vbTrue)
-    totalDiscount     = FormatNumber(ActiveSheet.Range("quot_discount").Value, 4, , , vbTrue)
-    totalAmount       = FormatNumber(ActiveSheet.Range("quot_sub_total_amount").Value, 4, , , vbTrue)
-    quotStatus        = FormatNumber(ActiveSheet.Range("quot_status").Value, 4, , , vbTrue)
-    totalBalance      = FormatNumber(ActiveSheet.Range("quot_total_amount").Value, 4, , , vbTrue)
+    totalDeposit      = FormatNumber(ActiveSheet.Range("quot_deposit").Value, 2, , , vbTrue)
+    totalDiscount     = FormatNumber(ActiveSheet.Range("quot_discount").Value, 2, , , vbTrue)
+    totalAmount       = FormatNumber(ActiveSheet.Range("quot_sub_total_amount").Value, 2, , , vbTrue)
+    quotStatus        = FormatNumber(ActiveSheet.Range("quot_status").Value, 2, , , vbTrue)
+    totalBalance      = FormatNumber(ActiveSheet.Range("quot_total_amount").Value, 2, , , vbTrue)
 
     isApprove            = 1 '0:approved,1:not approve
     isClose              = 0 '0:close,1:open
@@ -114,11 +139,11 @@ Public Sub AddQuotation()
     approvedBy           = ActiveSheet.Range("quot_seller").Value
 
     If (discountTypeId=1) Then 'discount amount
-        discountAmount   = FormatNumber(ActiveSheet.Range("quot_discount_amount").Value, 4, , , vbTrue)
+        discountAmount   = FormatNumber(ActiveSheet.Range("quot_discount_amount").Value, 2, , , vbTrue)
         discountPercent = 0
     ElseIf (discountTypeId=2) Then 'discount percent
         discountAmount  = 0
-        discountPercent  = FormatNumber(ActiveSheet.Range("quot_discount_percent").Value, 4, , , vbTrue)
+        discountPercent  = FormatNumber(ActiveSheet.Range("quot_discount_percent").Value, 2, , , vbTrue)
     Else 'no discount
         discountAmount  = 0
         discountPercent = 0
@@ -129,7 +154,7 @@ Public Sub AddQuotation()
     Else
         exchangeRate  = 4000
     End If
-    totalDeposit      = 0
+    ' totalDeposit      = 0
     ' totalBalance      = totalAmount + totalVat - (totalDiscount + totalDeposit)
 
     Dim activeWorkbook, wbDatabase As Workbook
@@ -172,17 +197,17 @@ Public Sub AddQuotation()
 
                     '***Start save quotation***
                     Set ws_quot_data     = wbDatabase.Sheets("QuoteData")
-                    Set ws_quot_detail   = wbDatabase.Sheets("quoteDetailData")
+                    Set ws_quot_detail   = wbDatabase.Sheets("QuoteDetailData")
+                    Set ws_quot_service  = wbDatabase.Sheets("QuoteServiceData")
+
                     Set quotData         = ws_quot_data.Range("C8:AJ8")
                     quotId               = ws_quot_data.Cells(Rows.Count, "C").End(xlUp).Row - 6
 
                     Set quotDetailData   = ws_quot_detail.Range("C8:Z8")
                     quotDetailId         = ws_quot_detail.Cells(Rows.Count, "C").End(xlUp).Row - 6
+                    quotServiceId        = ws_quot_service.Cells(Rows.Count, "C").End(xlUp).Row - 6
 
                     Set item_row         = activeWorkbook.Sheets("AddQuotation").Range("I8:AM87")
-
-                    ' debug.Print "quotId=" & quotId & " , quotDetailId=" & quotDetailId
-                    ' Debug.Print "quotCode=" & quotCode & ", customerName=" & customerName
 
                     'insert quotation data
                     If (totalVat<=0) Then 
@@ -231,7 +256,6 @@ Public Sub AddQuotation()
 
                     For a = 1 To item_row.Rows.Count
                         If item_row.Cells(a,1) <> "" Then 'old condition => WorksheetFunction.Count(rng.Rows(a)) <> 0
-
                             'insert quotation detail
                             conversion          = 1
                             productId           = item_row.Cells(a,1)
@@ -253,7 +277,7 @@ Public Sub AddQuotation()
                             smallValUom         = item_row.Cells(a,20)
                             totalDisItem        = FormatNumber(item_row.Cells(a,21), 4, , , vbTrue)
                             unitCostByUom       = FormatNumber(item_row.Cells(a,22), 4, , , vbTrue)
-                            ' unitCostBigUom      = Format(item_row.Cells(a,23), 4, , , vbTrue)
+                            'unitCostBigUom      = Format(item_row.Cells(a,23), 4, , , vbTrue)
                             unitPriceBigUom     = FormatNumber(item_row.Cells(a,24), 4, , , vbTrue)
                             itemType            = item_row.Cells(a,25) '1 : product, 2:service
 
@@ -262,43 +286,60 @@ Public Sub AddQuotation()
                             Else
                                 unitPrice = FormatNumber(unitPriceByUom, 4, , , vbTrue)
                             End If
-                            totalCost          = (qty + qtyFree) * unitCostByUom
-                            totalPriceBeforDis = FormatNumber(qty * unitPrice, 4, , , vbTrue)
+
+                            If (itemType =1) Then
+                                quotDetailData.Cells(quotDetailId, 1)   = quotDetailId 'id
+                                quotDetailData.Cells(quotDetailId, 2)   = quotId 'quot id
+                                quotDetailData.Cells(quotDetailId, 3)   = quotCode 'quot number
+                                quotDetailData.Cells(quotDetailId, 4)   = quotDate 'quot date
+                                quotDetailData.Cells(quotDetailId, 5)   = customerId 'customer id
+                                quotDetailData.Cells(quotDetailId, 6)   = productId 'product id
+                                quotDetailData.Cells(quotDetailId, 7)   = productCode 'barcode product
+                                quotDetailData.Cells(quotDetailId, 8)   = productName 'item description/service
+                                quotDetailData.Cells(quotDetailId, 9)   = qty 'qty
+                                quotDetailData.Cells(quotDetailId, 10)  = qtyFree 'qty free
+                                quotDetailData.Cells(quotDetailId, 11)  = productUoM 'uom
+                                quotDetailData.Cells(quotDetailId, 12)  = productUoMId 'uom id
+                                quotDetailData.Cells(quotDetailId, 13)  = conversion 'uom conversion
+                                quotDetailData.Cells(quotDetailId, 14)  = "" 'discount id
+                                quotDetailData.Cells(quotDetailId, 15)  = disItem 'discount amount
+                                quotDetailData.Cells(quotDetailId, 16)  = "" 'discount percent
+                                quotDetailData.Cells(quotDetailId, 17)  = unitCostByUom 'unit cost
+                                quotDetailData.Cells(quotDetailId, 18)  = unitPrice 'unit price
+                                quotDetailData.Cells(quotDetailId, 19)  = disItem 'discount total price
+                                quotDetailData.Cells(quotDetailId, 20)  = totalPrice 'total price
+                                quotDetailData.Cells(quotDetailId, 21)  = 1 'quotStatus
+                                quotDetailData.Cells(quotDetailId, 22)  = quotWeek 'week
+                                quotDetailData.Cells(quotDetailId, 23)  = quotMonth 'month
+                                quotDetailData.Cells(quotDetailId, 24)  = quotYear 'year
+                                quotDetailId = quotDetailId + 1
+                            ElseIf (itemType = 2) Then
+                                ws_quot_service.Cells(quotServiceId + 7, "C")  = quotServiceId 'id
+                                ws_quot_service.Cells(quotServiceId + 7, "D")  = quotId 'quot id
+                                ws_quot_service.Cells(quotServiceId + 7, "E")  = quotCode 'quot number
+                                ws_quot_service.Cells(quotServiceId + 7, "F")  = quotDate 'quot date
+                                ws_quot_service.Cells(quotServiceId + 7, "G")  = customerId 'customer id
+                                ws_quot_service.Cells(quotServiceId + 7, "H")  = productId 'service id
+                                ws_quot_service.Cells(quotServiceId + 7, "I")  = productCode 'service code
+                                ws_quot_service.Cells(quotServiceId + 7, "J")  = productName 'service name
+                                ws_quot_service.Cells(quotServiceId + 7, "K")  = qty 'qty
+                                ws_quot_service.Cells(quotServiceId + 7, "L")  = productUoM 'uom
+                                ws_quot_service.Cells(quotServiceId + 7, "M")  = productUoMId 'uom id
+                                ws_quot_service.Cells(quotServiceId + 7, "N")  = conversion 'uom conversion
+                                ws_quot_service.Cells(quotServiceId + 7, "O")  = "" 'discount id
+                                ws_quot_service.Cells(quotServiceId + 7, "P")  = disItem 'discount amount
+                                ws_quot_service.Cells(quotServiceId + 7, "Q")  = "" 'discount percent
+                                ws_quot_service.Cells(quotServiceId + 7, "R")  = disItem 'discount total price
+                                ws_quot_service.Cells(quotServiceId + 7, "S")  = unitCostByUom 'unit cost
+                                ws_quot_service.Cells(quotServiceId + 7, "T")  = unitPrice 'unit price
+                                ws_quot_service.Cells(quotServiceId + 7, "U")  = totalPrice 'total price
+                                ws_quot_service.Cells(quotServiceId + 7, "V")  = 1 'quotStatus
+                                ws_quot_service.Cells(quotServiceId + 7, "W")  = quotWeek 'week
+                                ws_quot_service.Cells(quotServiceId + 7, "X")  = quotMonth 'month
+                                ws_quot_service.Cells(quotServiceId + 7, "Y")  = quotYear 'year
+                                quotServiceId = quotServiceId + 1
+                            End If
                             
-                            qtyOrder        = (qty + qtyFree) / conversion '(qty + qtyFree) / smallValUom / convertion
-                            qtyOrderSmall   = (qty + qtyFree) * (smallValUom / conversion)
-
-                            quotDetailData.Cells(quotDetailId, 1)   = quotDetailId 'id
-                            quotDetailData.Cells(quotDetailId, 2)   = quotId 'quot id
-                            quotDetailData.Cells(quotDetailId, 3)   = quotCode 'quot number
-                            quotDetailData.Cells(quotDetailId, 4)   = quotDate 'quot date
-
-                            quotDetailData.Cells(quotDetailId, 5)   = customerId 'customer id
-                            quotDetailData.Cells(quotDetailId, 6)   = productId 'product id
-                            quotDetailData.Cells(quotDetailId, 7)   = productCode 'barcode product
-                            quotDetailData.Cells(quotDetailId, 8)   = productName 'item description/service
-
-                            quotDetailData.Cells(quotDetailId, 9)   = qty 'qty
-                            quotDetailData.Cells(quotDetailId, 10)  = qtyFree 'qty free
-                            
-                            quotDetailData.Cells(quotDetailId, 11)  = productUoM 'uom
-                            quotDetailData.Cells(quotDetailId, 12)  = productUoMId 'uom id
-                            quotDetailData.Cells(quotDetailId, 13)  = conversion 'uom conversion
-                            
-                            quotDetailData.Cells(quotDetailId, 14)  = "" 'discount id
-                            quotDetailData.Cells(quotDetailId, 15)  = disItem 'discount amount
-                            quotDetailData.Cells(quotDetailId, 16)  = "" 'discount percent
-
-                            quotDetailData.Cells(quotDetailId, 17)  = unitCostByUom 'unit cost
-                            quotDetailData.Cells(quotDetailId, 18)  = unitPrice 'unit price
-                            quotDetailData.Cells(quotDetailId, 19)  = disItem 'discount total price
-                            quotDetailData.Cells(quotDetailId, 20)  = totalPrice 'total price
-
-                            quotDetailData.Cells(quotDetailId, 21)  = 1 'quotStatus
-                            quotDetailData.Cells(quotDetailId, 22)  = quotWeek 'week
-                            quotDetailData.Cells(quotDetailId, 23)  = quotMonth 'month
-                            quotDetailData.Cells(quotDetailId, 24)  = quotYear 'year
-                            quotDetailId = quotDetailId + 1
                         End If
                     Next a
                     '*******End save quotation*******

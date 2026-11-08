@@ -1,1 +1,135 @@
 20/10/2026 2:55:27 PM - Error:Error inAutoloadModules
+08/11/2026 2:22:16 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files
+08/11/2026 2:22:16 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet1 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet1.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet20 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet20.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet24 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet24.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet25 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet25.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet58 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet58.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet61 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet61.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet64 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet64.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet65 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet65.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS UPDATED: Sheet66 FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class\Sheet66.cls
+08/11/2026 2:22:16 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules
+08/11/2026 2:22:16 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\elements
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsBtn FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\elements\clsBtn.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsDate FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\elements\clsDate.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsPaging FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\elements\clsPaging.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsTextBox FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\elements\clsTextBox.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: MouseOverControl FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\elements\MouseOverControl.cls
+08/11/2026 2:22:16 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsControlAccessors FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsControlAccessors.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsControlAttributes FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsControlAttributes.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsControlNameHelpers FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsControlNameHelpers.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsControlPositionCalcs FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsControlPositionCalcs.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsFrameMain FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsFrameMain.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsHeaderCheckbox FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsHeaderCheckbox.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsHeaderLabel FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsHeaderLabel.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsHeaderSymbol FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsHeaderSymbol.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsPaginationArrows FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsPaginationArrows.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsPaginationNumbers FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsPaginationNumbers.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsRowCheckbox FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsRowCheckbox.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsRowFrame FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsRowFrame.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsRowHeaderFrame FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsRowHeaderFrame.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsRowLabel FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsRowLabel.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsSearchLabel FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsSearchLabel.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsEventsSearchTextbox FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsEventsSearchTextbox.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsHighlightRow FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsHighlightRow.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsHighlightTracker FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsHighlightTracker.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsHoverHeader FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsHoverHeader.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsHoverRow FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsHoverRow.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsListBoxSettings FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsListBoxSettings.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsModernListbox FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsModernListbox.cls
+08/11/2026 2:22:16 PM - DEBUG:CLASS IMPORTED: clsParentFrameManager FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsParentFrameManager.cls
+08/11/2026 2:22:17 PM - DEBUG:CLASS IMPORTED: clsSortTracker FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\class_modules\modern_listbox\clsSortTracker.cls
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: Main.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\Main.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\customers
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_customer.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\customers\add_customer.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlBarcode.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlBarcode.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlColor.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlColor.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlConnect.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlConnect.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlDashBoard.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlDashBoard.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlDataMatrix.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlDataMatrix.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlDate.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlDate.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlDeclare.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlDeclare.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlDeclareFontUnicode.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlDeclareFontUnicode.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlDeclareFunction.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlDeclareFunction.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlGenerateBarcode128.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlGenerateBarcode128.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlGenerateQRcode.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlGenerateQRcode.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlHandleButton.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlHandleButton.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlMinimizeMaximize.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlMinimizeMaximize.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlModulAztec.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlModulAztec.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlMouseScroll.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlMouseScroll.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlNewExcelFunction.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlNewExcelFunction.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlPaging.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlPaging.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlPublic.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlPublic.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlSorting.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlSorting.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mdlTextBox.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\mdlTextBox.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: RibbonX_Code.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\elements\RibbonX_Code.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\inventory_adjustments
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_inventory_adjustment.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\inventory_adjustments\add_inventory_adjustment.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: lock_protect_adj.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\inventory_adjustments\lock_protect_adj.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: save_pdf_print_adj.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\inventory_adjustments\save_pdf_print_adj.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\modern_listbox
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: ClassFactories.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\modern_listbox\ClassFactories.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: Instantiate.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\modern_listbox\Instantiate.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mlbArrayHelpers.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\modern_listbox\mlbArrayHelpers.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: mlbTypes.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\modern_listbox\mlbTypes.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\other_expenses
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_other_expense.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\other_expenses\add_other_expense.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\other_incomes
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_other_income.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\other_incomes\add_other_income.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\products
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_product_price.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\products\add_product_price.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: import_product_price.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\products\import_product_price.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\purchase_bills
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_purchase_bill.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\purchase_bills\add_purchase_bill.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: lock_protect_pb.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\purchase_bills\lock_protect_pb.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: save_pdf_purchase_a4.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\purchase_bills\save_pdf_purchase_a4.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\quotations
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_quotation.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\quotations\add_quotation.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_ship_to.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\quotations\add_ship_to.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: lock_protect_add_quote.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\quotations\lock_protect_add_quote.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: save_pdf_quote_a4.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\quotations\save_pdf_quote_a4.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\receive_payments
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_receive_payment.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\receive_payments\add_receive_payment.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: lock_protect_receive_payment.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\receive_payments\lock_protect_receive_payment.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: save_receive_payment_pdf.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\receive_payments\save_receive_payment_pdf.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\sales_invoices
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_sales_invoice.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\sales_invoices\add_sales_invoice.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: lock_protected_sheet_cell.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\sales_invoices\lock_protected_sheet_cell.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: save_pdf_invoice_a4.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\sales_invoices\save_pdf_invoice_a4.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\sellers
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_seller.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\sellers\add_seller.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\uom_conversions
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_uom_conversion.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\uom_conversions\add_uom_conversion.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\vendors
+08/11/2026 2:22:17 PM - DEBUG:MODULE IMPORTED: add_vendor.bas FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\modules\vendors\add_vendor.bas TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\customers
+08/11/2026 2:22:17 PM - DEBUG:FORM IMPORTED: frmCustomer.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\customers\frmCustomer.frm TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\dashboards
+08/11/2026 2:22:17 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\elements
+08/11/2026 2:22:17 PM - DEBUG:FORM IMPORTED: DatePicker.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\elements\DatePicker.frm TO EXCEL
+08/11/2026 2:22:17 PM - DEBUG:FORM IMPORTED: frmElement.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\elements\frmElement.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\persons
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\quotations
+08/11/2026 2:22:18 PM - DEBUG:FORM IMPORTED: frmAddSeller.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\quotations\frmAddSeller.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:FORM IMPORTED: frmAddShipTo.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\quotations\frmAddShipTo.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\sales_invoices
+08/11/2026 2:22:18 PM - DEBUG:FORM IMPORTED: autoAddItemInvoice.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\sales_invoices\autoAddItemInvoice.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:FORM IMPORTED: formEdit.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\sales_invoices\formEdit.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\users
+08/11/2026 2:22:18 PM - DEBUG:FORM IMPORTED: frmLockProtectSheet.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\users\frmLockProtectSheet.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\vendors
+08/11/2026 2:22:18 PM - DEBUG:FORM IMPORTED: frmVendor.frm FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\vba-files\views\vendors\frmVendor.frm TO EXCEL
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\xvba_modules
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\xvba_modules\excel-types
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\xvba_modules\excel-types\logs
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\xvba_modules\Xdebug
+08/11/2026 2:22:18 PM - DEBUG:CLASS IMPORTED: Xdebug FROM FILE: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\xvba_modules\Xdebug\Xdebug.cls
+08/11/2026 2:22:18 PM - DEBUG:Importing VBA Files from: D:\1_Documents\1_Companies\C009-KOK SNUOL\ks_system\xvba_modules\Xdebug\images
+08/11/2026 2:22:18 PM - DEBUG:Import VBA Files Finish
+08/11/2026 4:28:40 PM - Error:Error inAutoloadModules

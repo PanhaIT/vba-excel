@@ -576,23 +576,23 @@ Function AutoSelectInvoiceItems(ByVal TargetAmount As Double, _
         MsgBox "Error: 'ProductList' sheet not found!", vbCritical
         Exit Function
     End If
-    
+
     lastRow = wsInv.Cells(wsInv.Rows.Count, "A").End(xlUp).Row
-    
+
     ' 2. Loop through ProductList items (Assuming headers are in row 1, data starts row 2)
     ' Adjust column letters (e.g., "A", "B", "C") to match your exact ProductList sheet layout
     For i = 2 To lastRow
-        
+
         ' Check if we have already reached or exceeded the required invoice amount
         If currentAmount >= TargetAmount Then Exit For
-        
+
         ' Extract criteria values from the current row
         Dim rowGroup As String: rowGroup = wsInv.Cells(i, "A").Value      ' Column A: Product Group
         Dim rowBrand As String: rowBrand = wsInv.Cells(i, "B").Value      ' Column B: Brand
         Dim rowLoc As String: rowLoc = wsInv.Cells(i, "C").Value          ' Column C: Location
         Dim rowWh As String: rowWh = wsInv.Cells(i, "D").Value            ' Column D: Warehouse
         Dim rowBranch As String: rowBranch = wsInv.Cells(i, "E").Value    ' Column E: Branch
-        
+
         ' 3. Apply Multi-Filter Checks (using InStr to handle comma-separated multi-selects)
         If (ProductGroups = "" Or InStr(1, ProductGroups, rowGroup, vbTextCompare) > 0) And _
            (ProductBrands = "" Or InStr(1, ProductBrands, rowBrand, vbTextCompare) > 0) And _
@@ -645,7 +645,6 @@ Function AutoSelectInvoiceItems(ByVal TargetAmount As Double, _
     Else
         AutoSelectInvoiceItems = Empty
     End If
-    
 End Function
 
 Sub addItemsInvoice()

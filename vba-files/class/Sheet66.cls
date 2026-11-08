@@ -71,6 +71,31 @@ Option Explicit
 ' 23 . Month
 ' 24 . Year
 
+'*********Quotation Service************
+' 1 - Id
+' 2 - Quote ID
+' 3 - Quote No.
+' 4 - Quote Date
+' 5 - Customer ID
+' 6 - Service Id
+' 7 - Service Code
+' 8 - Service Name
+' 9 - Qty
+' 10 - UoM
+' 11 - Qty Uom Id
+' 12 - Conversion
+' 13 - Discount Id
+' 14 - Discount Amount
+' 15 - Discount Percent
+' 16 - Total Discount
+' 17 - Unit Cost
+' 18 - Unit Price
+' 19 - Total Price
+' 20 - Status
+' 21 - Week
+' 22 - Month
+' 23 - Year
+
 Private Sub OnStart()
     Application.EnableEvents = False
     Application.Calculation = xlCalculationManual 'xlCalculationManual , xlAutomatic
@@ -95,27 +120,32 @@ Private Sub QuotationComboBox_Change()
     ' OnStart
     'workbook , worksheet variable
     Dim activeWorkbook, wbDatabase As Workbook
-    Dim ws_product, ws_file_setting, ws_print_quote, ws_gld, ws_gl, ws, ws_quote_data, ws_quote_item_data As Worksheet
+    Dim ws_product, ws_file_setting, ws_print_quote, ws_gld, ws_gl, ws, ws_quote_data, ws_quote_item_data, ws_quote_service As Worksheet
 
     'loop variable
     Dim i, j, k, m, LastRow As Integer
 
     'customer variable
     Dim lastRowCustomer As Integer
-    Dim customerName, customerId, customerNameEn, customerNameKh, customerAddressKh, customerTel, customerEmail, customerTinNumber As String
+    Dim customerName, customerId, customerNameEn, customerNameKh, customerAddressKh, customerTel, customerSocialNetwork, customerEmail, customerTinNumber As String
 
     'Quote variable
     Dim quoteDate, QuoteDueDate As Date
     Dim statusNote, priceTypeId, discountTypeId, quoteCode, quoteNote As String
     Dim vatCal, vatPercent, quoteId, netDays, conversion, invId, invDetailId, exchangeRate, lastQuoteDetailId As Integer
 
+    'Quote Detail
+    Dim rngQuoteService, rngQuoteServiceId, criteriaRange1, criteriaRange2 As Range
+    Dim lastQuoteServiceId, countItem As Integer
+
     'amount variable
     Dim totalAmount, unitPrice, totalPrice, totalDeposit, totalDiscount, grandTotalAmount, totalDisItem, disItem, totalVat As Double
 
     'Product variable
-    Dim lastRowFileSetting, countQuoteDetailItem, countQuoteNo, qtyStock, productId, qty, qtyFree, convertion, lastRowUom,lastProductRow As Integer
-    Dim productCode, productName, productUoM,specProduct As String
+    Dim lastRowFileSetting, countQuoteDetailItem,countQuoteServiceItem, countQuoteNo, qtyStock, productId, qty, qtyFree, convertion, lastRowUom,lastProductRow As Integer
+    Dim productCode, productName, productUoM,specProduct, description As String
     Dim rngProductList, rngUom, rangeQuoteList, rangeQuoteDetail, rangePrintInvItem, rangeQuoteDetailId As Range
+    Dim imageName As String
 
     'branch variablbe
     Dim branchListRange As Range
@@ -144,18 +174,25 @@ Private Sub QuotationComboBox_Change()
         Set wbDatabase         = Workbooks("database_kscm.xlsm")
         Set ws_quote_data      = wbDatabase.Sheets("QuoteData")
         Set ws_quote_item_data = wbDatabase.Sheets("QuoteDetailData")
+        Set ws_quote_service   = wbDatabase.Sheets("QuoteServiceData")
         Set ws_product         = activeWorkbook.Sheets("ProductList")
 
         lastQuoteDetailId      = ws_quote_item_data.Cells(Rows.Count, "C").End(xlUp).Row
+        lastQuoteServiceId     = ws_quote_service.Cells(Rows.Count, "C").End(xlUp).Row
         lastRowFileSetting     = ws_file_setting.Cells(Rows.Count,"C").End(xlUp).row
 
         Set rangeQuoteList     = ws_quote_data.Range("C8:AJ" & lastQuoteDetailId)    'Quote_list2
         Set rangeQuoteDetailId = ws_quote_item_data.Range("C8:C" & lastQuoteDetailId)
+        Set rngQuoteServiceId  = ws_quote_service.Range("C8:C" & lastQuoteServiceId)
+
         Set rangeQuoteDetail   = ws_quote_item_data.Range("C8:Z" & lastQuoteDetailId)
+        Set rngQuoteService    = ws_quote_service.Range("C8:Y" & lastQuoteServiceId)
         Set rng_file_setting   = ws_file_setting.Range("C8:M" & lastRowFileSetting)
 
         folderProductPhoto     = Application.Vlookup(40,rng_file_setting,10,FALSE)
         countQuoteDetailItem   = Application.CountA(rangeQuoteDetailId)
+        countQuoteServiceItem  = Application.CountA(rngQuoteServiceId)
+
         quoteId                = CInt(Split(Me.QuotationComboBox.Value, "#")(1))
         quoteCode              = Split(Me.QuotationComboBox.Value, "#")(0)
         quoteCode              = Left(quoteCode, Len(quoteCode) - 1)
@@ -192,6 +229,7 @@ Private Sub QuotationComboBox_Change()
         customerAddressKh      = Application.VLookup(customerId, customerListRange, 9, False)
         customerTel            = Application.VLookup(customerId, customerListRange, 7, False)
         customerEmail          = Application.VLookup(customerId, customerListRange, 10, False)
+        customerSocialNetwork  = Application.VLookup(customerId, customerListRange, 8, False)
         customerTinNumber      = Application.VLookup(customerId, customerListRange, 12, False)
 
         bankName               = Split(Application.VLookup(branchId, branchListRange, 6, False), ",")(0)
@@ -228,29 +266,36 @@ Private Sub QuotationComboBox_Change()
         ws_print_quote.Range("print_quote_customer_name_kh").Value      = customerNameKh
         ws_print_quote.Range("print_quote_customer_address_kh").Value   = customerAddressKh
         ws_print_quote.Range("print_quote_customer_tel").Value          = CStr(customerTel)
-        ws_print_quote.Range("print_quote_customer_email").Value        = customerEmail
-        ws_print_quote.Range("print_quote_customer_tin_number").Value   = customerTinNumber
+        ws_print_quote.Range("print_quote_customer_social_network").Value = customerSocialNetwork
+        ' ws_print_quote.Range("print_quote_customer_email").Value        = customerEmail
+        ' ws_print_quote.Range("print_quote_customer_tin_number").Value   = customerTinNumber
 
         ws_print_quote.Range("C27" & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = False 'Show all row in range print Quote
         If quoteId > 0 And countQuoteDetailItem > 0 Then
             k = 0
             m = 0
-            ' debug.Print "countQuoteDetailItem=" & countQuoteDetailItem
-            For j = 1 To countQuoteDetailItem
-                If (rangeQuoteDetail.Cells(j, 2) = quoteId) Then
-                    ' disItem             = rangeQuoteDetail.Cells(j,6)
-                    ' totalDisItem        = rangeQuoteDetail.Cells(j,6)
-                    productCode = rangeQuoteDetail.Cells(j, 7)
-                    productName = rangeQuoteDetail.Cells(j, 8)           'MID(Split(rangeQuoteDetail.Cells(j, 7),"#")(0), 7, 100)
-                    qty         = rangeQuoteDetail.Cells(j, 9)
-                    qtyFree     = rangeQuoteDetail.Cells(j, 10)
-                    productUoM  = Application.VLookup(MID(rangeQuoteDetail.Cells(j, 11), 1, 3) * 1, rngUom, 5, False)
-                    specProduct = Application.VLookup(rangeQuoteDetail.Cells(j, 6), rngProductList, 11, False)
-                    unitPrice   = rangeQuoteDetail.Cells(j, 18)
-                    totalPrice  = rangeQuoteDetail.Cells(j, 20)
-                 
-                    Dim criteriaRange1, criteriaRange2 As Range
-                    Dim countItem As Integer
+            
+            Dim targetCell As Range
+            Dim img As Shape
+
+            ' Define target pixel dimensions
+            Dim targetWidthPx As Double
+            Dim targetHeightPx As Double
+            Dim widthInPoints As Double
+            Dim heightInPoints As Double
+
+            '********Quotation Item C,D,H,I,J,L***************
+            For i = 1 To countQuoteDetailItem
+                If (rangeQuoteDetail.Cells(i, 2) = quoteId) Then
+                    productCode = rangeQuoteDetail.Cells(i, 7)
+                    productName = rangeQuoteDetail.Cells(i, 8)           'MID(Split(rangeQuoteDetail.Cells(j, 7),"#")(0), 7, 100)
+                    qty         = rangeQuoteDetail.Cells(i, 9)
+                    qtyFree     = rangeQuoteDetail.Cells(i, 10)
+                    productUoM  = Application.VLookup(MID(rangeQuoteDetail.Cells(i, 11), 1, 3) * 1, rngUom, 5, False)
+                    specProduct = Application.VLookup(rangeQuoteDetail.Cells(i, 6), rngProductList, 11, False)
+                    description = Application.VLookup(rangeQuoteDetail.Cells(i, 6), rngProductList, 12, False)
+                    unitPrice   = rangeQuoteDetail.Cells(i, 18)
+                    totalPrice  = rangeQuoteDetail.Cells(i, 20)
 
                     Set criteriaRange1 = ws_quote_item_data.Range("D8:D" & countQuoteDetailItem + 7) 'column Quote id
                     Set criteriaRange2 = ws_quote_item_data.Range("W8:W" & countQuoteDetailItem + 7) 'column status
@@ -273,40 +318,111 @@ Private Sub QuotationComboBox_Change()
                         ' End If
 
                         ' Debug.Print "k=" & k
-                        rangePrintInvItem.Cells(k, 1) = m 'productCode
-                        rangePrintInvItem.Cells(k, 2) = productName
-                        rangePrintInvItem.Cells(k, 6) = qty
-                        rangePrintInvItem.Cells(k, 7) = productUoM
-                        rangePrintInvItem.Cells(k, 8) = unitPrice
-                        rangePrintInvItem.Cells(k, 10)= totalPrice
-                        rangePrintInvItem.Cells(k, 9) = totalPrice * exchangeRate
+                        ' rangePrintInvItem.Cells(k, 1) = m 'productCode
+                        ' rangePrintInvItem.Cells(k, 2) = productName
+                        ' rangePrintInvItem.Cells(k, 6) = qty
+                        ' rangePrintInvItem.Cells(k, 7) = productUoM
+                        ' rangePrintInvItem.Cells(k, 8) = unitPrice
+                        ' rangePrintInvItem.Cells(k, 10)= totalPrice
+                        ' rangePrintInvItem.Cells(k, 9) = totalPrice * exchangeRate
+
+                        ws_print_quote.Cells(k + 26, "C") = m 'productCode
+                        ws_print_quote.Cells(k + 26, "D") = productName
+                        ws_print_quote.Cells(k + 26, "H") = qty
+                        ws_print_quote.Cells(k + 26, "I") = productUoM
+                        ws_print_quote.Cells(k + 26, "J") = unitPrice
+                        ws_print_quote.Cells(k + 26, "L") = totalPrice
 
                         '********Insert Product Photo********************
                         k = k + 1
-                        rangePrintInvItem.Cells(k, 2) = " - Item Code :  " & productCode & vbNewLine & " - Spec : " & specProduct 'Spec , item code, description
-                        
+                        ws_print_quote.Cells(k + 26, "D") = " - Item Code :  " & productCode & vbNewLine & " - Spec : " & specProduct & vbNewLine & " - " & description 'Spec , item code, description
+
                         ' Define the full path to your image
-                        Dim imageName As String
+                        
                         imageName = FindImageFile(folderProductPhoto & productCode)
                         
                         If (imageName <> "") Then 
-                            Dim targetCell As Range
-                            Dim img As Shape
-
-                            ' Define target pixel dimensions
-                            Dim targetWidthPx As Double
-                            Dim targetHeightPx As Double
                             'Resolution : 213x120 = (1920-1707)x(1080-960)
                             targetWidthPx  = 213  ' Set your desired width in pixels
                             targetHeightPx = 120  ' Set your desired height in pixels
                             
                             ' Convert pixels to points (1 pixel = 0.75 points)
-                            Dim widthInPoints As Double
-                            Dim heightInPoints As Double
                             widthInPoints  = targetWidthPx * 0.75
                             heightInPoints = targetHeightPx * 0.75
 
-                            Set targetCell = rangePrintInvItem.Cells(k, 6) 'ws_print_quote.Range("B2") ' Change to your target cell
+                            Set targetCell = ws_print_quote.Cells(k + 26, "H") ' Change to your target cell
+
+                            ' Insert the picture at the coordinates of the target cell
+                            Set img = ws_print_quote.Shapes.AddPicture( _
+                                Filename:=imageName, _
+                                LinkToFile:=msoFalse, _
+                                SaveWithDocument:=msoTrue, _
+                                Left:=targetCell.Left, _
+                                Top:=targetCell.Top, _
+                                Width:=-1, _
+                                Height:=-1) ' Use -1 to keep original size initially
+
+                                ' Optional: Resize and lock the picture to the cell dimensions
+                            With img
+                                .LockAspectRatio = msoFalse ' Set to msoTrue if you only want to force one dimension
+                                .Width     = widthInPoints
+                                .Height    = heightInPoints
+                                .Left      = targetCell.Left + 70 * 0.75 '(targetCell.Width - .Width) / 2
+                                .Top       = targetCell.Top + (targetCell.Height - .Height) / 2
+                                ' Ensure the image moves and resizes if rows/columns change
+                                .Placement = xlMoveAndSize 
+                            End With
+                        Else
+                            ws_print_quote.Cells(k + 26, "H") = ""
+                        End If
+                    End If
+                End If
+            Next i
+
+            '*********Quotation Service C,D,H,I,J,L***************
+            For j = 1 To countQuoteServiceItem
+                If (rngQuoteService.Cells(j, 2) = quoteId) Then
+                    productCode = rngQuoteService.Cells(j, 7)
+                    productName = rngQuoteService.Cells(j, 8)           'MID(Split(rangeQuoteDetail.Cells(j, 7),"#")(0), 7, 100)
+                    qty         = rngQuoteService.Cells(j, 9)
+                    productUoM  = Application.VLookup(MID(rngQuoteService.Cells(j, 10), 1, 3) * 1, rngUom, 5, False)
+                    specProduct = Application.VLookup(rngQuoteService.Cells(j, 6), rngProductList, 11, False)
+                    description = Application.VLookup(rngQuoteService.Cells(j, 6), rngProductList, 12, False)
+                    unitPrice   = rngQuoteService.Cells(j, 18)
+                    totalPrice  = rngQuoteService.Cells(j, 19)
+
+                    Set criteriaRange1 = ws_quote_service.Range("D8:D" & countQuoteServiceItem + 7) 'column Quote id
+                    Set criteriaRange2 = ws_quote_service.Range("W8:W" & countQuoteServiceItem + 7) 'column status
+                    countItem          = Application.COUNTIFS(criteriaRange1, quoteId, criteriaRange2, 1)
+
+                    ' debug.Print "countItem=" & countItem
+                    If (qty > 0) Then
+                        k = k + 1
+                        m = m + 1
+                        ws_print_quote.Cells(k + 26, "C") = m 'productCode
+                        ws_print_quote.Cells(k + 26, "D") = productName
+                        ws_print_quote.Cells(k + 26, "H") = qty
+                        ws_print_quote.Cells(k + 26, "I") = productUoM
+                        ws_print_quote.Cells(k + 26, "J") = unitPrice
+                        ws_print_quote.Cells(k + 26, "L") = totalPrice
+
+                        '********Insert Product Photo********************
+                        k = k + 1
+                        ws_print_quote.Cells(k + 26, "D") = " - Item Code :  " & productCode & vbNewLine & " - Spec : " & specProduct & vbNewLine & " - " & description 'Spec , item code, description
+                        
+                        ' Define the full path to your image
+                        imageName = FindImageFile(folderProductPhoto & productCode)
+                        
+                        If (imageName <> "") Then 
+                            'Resolution : 213x120 = (1920-1707)x(1080-960)
+                            targetWidthPx  = 213  ' Set your desired width in pixels
+                            targetHeightPx = 120  ' Set your desired height in pixels
+                            
+                            ' Convert pixels to points (1 pixel = 0.75 points)
+                            widthInPoints  = targetWidthPx * 0.75
+                            heightInPoints = targetHeightPx * 0.75
+
+                            Set targetCell = ws_print_quote.Cells(k + 26, "H") 'ws_print_quote.Range("B2") ' Change to your target cell
                             
                            ' Insert the picture at the coordinates of the target cell
                             Set img = ws_print_quote.Shapes.AddPicture( _
@@ -329,11 +445,12 @@ Private Sub QuotationComboBox_Change()
                                 .Placement = xlMoveAndSize 
                             End With
                         Else
-                            rangePrintInvItem.Cells(k, 6) = ""
+                            ws_print_quote.Cells(k + 26, "H") = ""
                         End If
                     End If
                 End If
             Next j
+
             LastRow = k + 27
             ws_print_quote.Range("C" & LastRow & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
         End If

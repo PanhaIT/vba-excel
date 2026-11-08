@@ -248,6 +248,10 @@ Public Sub goPrintInvoice()
     Worksheets("PrintInvoice").Select
 End Sub
 
+Public Sub goPrintInvoiceNormal()
+    Worksheets("PrintInvoiceNormal").Select
+End Sub
+
 Public Sub goProductCostHistory()
     Worksheets("ProductCostHistory").Select
 End Sub
