@@ -479,7 +479,7 @@ Public Function getStockAvariableByUom(productId As Integer, smallQtyAvariable A
 
         bigQty      = smallQtyAvariable/smallValUom
         integerQty  = Fix(smallQtyAvariable/smallValUom)
-        decimalQty  = smallQtyAvariable/smallValUom - Fix(integerQty)
+        decimalQty  = bigQty - integerQty
 
         '******product have 2 uoms => totalConversion = 1
         If (totalConversion = 1) Then 
