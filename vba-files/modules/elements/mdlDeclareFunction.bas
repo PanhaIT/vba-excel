@@ -521,6 +521,96 @@ Public Function getStockAvariableByUom(productId As Integer, smallQtyAvariable A
     OnEnd
 End Function
 
+Public Function getSmallValUom(uomOption As String) As Integer
+      'workbook and worksheet
+    Dim activeWorkbook As Workbook
+
+    'uom
+    Dim bigUomName As String
+    Dim ws_uom, ws_uom_con As Worksheet
+    Dim rng_uom_list As Range
+    Dim smallValUom, countFromUom, uomId, index, index1 As Integer
+
+    'only get small uom value when uom option is not empty
+    Set activeWorkbook = Workbooks("index.xlsm")
+    Set ws_uom = activeWorkbook.Sheets("UoM")
+    Set rng_uom_list = ws_uom.Range("C8:I" & ws_uom.Cells(Rows.Count, "C").end(xlUp).row)
+    Set ws_uom_con = activeWorkbook.Sheets("UomConversion")
+
+    uomId = CInt(Mid(uomOption, 1, 3))
+    index = 5           'value uom
+    smallValUom = 1     'small value uom default
+    countFromUom = Application.WorksheetFunction.CountIfs(ws_uom_con.Range("D8:D500"), uomId, ws_uom_con.Range("I8:I500"), 1, ws_uom_con.Range("J8:J500"), 1)      'Count uom conversion base on main uom id
+    
+    'Check uom id exist in the range
+    If countFromUom > 0 Then
+        smallValUom = Slookup(uomId * 1, ws_uom_con.Range("D8:J500"), CInt(index), ws_uom_con.Range("I8:I500"), 1, ws_uom_con.Range("J8:J500"), 1)
+    End If
+
+    getSmallValUom = smallValUom
+End Function
+
+Function Join1DArrays(arr1 As Variant, arr2 As Variant) As Variant
+    Dim result() As Variant
+    Dim i As Long, idx As Long
+    Dim totalSize As Long
+    
+    ' Calculate total elements needed (handles both 0-based and 1-based arrays)
+    totalSize = (UBound(arr1) - LBound(arr1) + 1) + (UBound(arr2) - LBound(arr2) + 1)
+    ReDim result(0 To totalSize - 1)
+    
+    idx = 0
+    ' Copy first array
+    For i = LBound(arr1) To UBound(arr1)
+        result(idx) = arr1(i)
+        idx = idx + 1
+    Next i
+    
+    ' Copy second array
+    For i = LBound(arr2) To UBound(arr2)
+        result(idx) = arr2(i)
+        idx = idx + 1
+    Next i
+    
+    Join1DArrays = result
+End Function
+
+Public Function VisibleRangeToArray(ByVal rng As Range) As Variant 'convert resize range to array
+    Dim area As Range
+    Dim r As Long, c As Long, totalRows As Long, currentRow As Long
+    Dim colCount As Long
+    Dim result() As Variant
+    Dim areaVals As Variant
+    
+    ' 1. Count total visible rows across all non-contiguous areas
+    For Each area In rng.Areas
+        totalRows = totalRows + area.Rows.Count
+    Next area
+    
+    colCount = rng.Columns.Count
+    ReDim result(1 To totalRows, 1 To colCount)
+    
+    ' 2. Populate the 2D Variant array area by area
+    currentRow = 1
+    For Each area In rng.Areas
+        If area.Cells.Count = 1 Then
+            ' Handle single-cell areas (which return a scalar instead of an array)
+            result(currentRow, 1) = area.Value
+            currentRow = currentRow + 1
+        Else
+            areaVals = area.Value
+            For r = 1 To UBound(areaVals, 1)
+                For c = 1 To colCount
+                    result(currentRow, c) = areaVals(r, c)
+                Next c
+                currentRow = currentRow + 1
+            Next r
+        End If
+    Next area
+    
+    VisibleRangeToArray = result
+End Function
+
 Public  Sub getItemInvoiceTest()
     OnStart
     Dim activeWorkbook As Workbook

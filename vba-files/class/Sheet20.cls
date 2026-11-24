@@ -100,7 +100,8 @@ Private Sub InvoiceNormalComboBox_Change()
     ' Set rngInvoiceId = ws_print_invoice.Range("A27:B117")
 
     If (Me.InvoiceNormalComboBox.Value <> "Please select invoice code" And Me.InvoiceNormalComboBox.Value <> "") Then 'checkDatabaseFile = TRUE And
-        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
+        ws_print_invoice.Range("U27:AT143").Value = ""
+
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
         databasePath = ws_file_setting.Range("database_path").Value
         databaseFile = databasePath & "database_kscm.xlsm"
@@ -117,7 +118,7 @@ Private Sub InvoiceNormalComboBox_Change()
         lastInvoiceDetailId = ws_inv_item_data.Cells(Rows.Count, "C").end(xlUp).row
         lastInvServiceId = ws_inv_service_data.Cells(Rows.Count, "C").end(xlUp).row
 
-        Set rangeInvoiceList = ws_inv_data.Range("C8:AI" & lastInvoiceDetailId)    'invoice_list2
+        Set rangeInvoiceList = ws_inv_data.Range("C8:AI" & ws_inv_data.Cells(Rows.Count, "C").end(xlUp).row) 'invoice_list2
 
         Set rangeInvDetailId = ws_inv_item_data.Range("C8:C" & lastInvoiceDetailId)
         Set rangeInvoiceDetail = ws_inv_item_data.Range("C8:AB" & lastInvoiceDetailId)
@@ -125,8 +126,8 @@ Private Sub InvoiceNormalComboBox_Change()
         Set rangeInvServiceId = ws_inv_service_data.Range("C8:C" & lastInvServiceId)
         Set rangeInvoiceService = ws_inv_service_data.Range("C8:Y" & lastInvServiceId)
 
-        countInvoiceDetailItem = Application.CountA(rangeInvDetailId)
-        countInvoiceServiceItem = Application.CountA(rangeInvServiceId)
+        ' countInvoiceDetailItem = Application.CountA(rangeInvDetailId)
+        ' countInvoiceServiceItem = Application.CountA(rangeInvServiceId)
         invoiceId = CInt(Split(Me.InvoiceNormalComboBox.Value, "#")(1))
         invoiceCode = Split(Me.InvoiceNormalComboBox.Value, "#")(0)
         paymentTermId = Application.VLookup(invoiceId, rangeInvoiceList, 13, False)
@@ -216,87 +217,122 @@ Private Sub InvoiceNormalComboBox_Change()
         
         ws_print_invoice.Range("C27" & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = False 'Show all row in range print invoice
 
+        ' U17:AQ18
+        ' U19:AT20
+        ' U27:AT27
+
         If invoiceId > 0 Then
-            k = 0
-            m = 0
-            For j = 1 To countInvoiceDetailItem
-                If (rangeInvoiceDetail.Cells(j, 2) = invoiceId) Then
-                    productCode = rangeInvoiceDetail.Cells(j, 8)
-                    productName = rangeInvoiceDetail.Cells(j, 9)           'MID(Split(rangeInvoiceDetail.Cells(j, 7),"#")(0), 7, 100)
-                    qty = rangeInvoiceDetail.Cells(j, 10)
-                    qtyFree = rangeInvoiceDetail.Cells(j, 11)
-                    productUoM = Application.VLookup(Mid(rangeInvoiceDetail.Cells(j, 12), 1, 3) * 1, rngUom, 5, False)
-                    unitPrice = rangeInvoiceDetail.Cells(j, 18)
-                    totalPrice = rangeInvoiceDetail.Cells(j, 19)
+            ' *******advanced filter item data************
+            Dim rngInvItem As Range
+            Dim rngSearchCriteria As Range
+            Dim rngInvItemNoHead As Range
 
-                    Set criteriaRange1 = ws_inv_service_data.Range("D8:D" & countInvoiceDetailItem + 7) 'column invoice id
-                    Set criteriaRange2 = ws_inv_service_data.Range("AB8:AB" & countInvoiceDetailItem + 7) 'column status
-                    countItem = Application.COUNTIFS(criteriaRange1, invoiceId, criteriaRange2, 1)
+            'define the database and criteria ranges
+            If ws_inv_item_data.FilterMode Then ws_inv_item_data.ShowAllData
+            On Error Resume Next
+            ActiveSheet.ShowAllData
+            On Error GoTo 0
 
-                    If (qty > 0) Then
-                        k = k + 1
-                        m = m + 1
-                        If (countItem >= 26 And countItem <= 104) Then '26, 52, 78, 104
-                            If (k Mod 26 = 0) Then
-                                k = k + 1
+            Set rngInvItem = ws_inv_item_data.Range("C7:AB" & lastInvoiceDetailId) 'database range
+            Set rngSearchCriteria = ws_print_invoice.Range("U19:AT20") 'Q20:AP21
+            
+            'filter the database using the criteria
+            rngInvItem.AdvancedFilter Action:=xlFilterInPlace, CriteriaRange:=rngSearchCriteria, Unique:=False
+
+            ' 2. Exclude the header row using Offset(1, 0) and Resize
+            On Error Resume Next ' Handles cases where 0 rows match the filter
+                Set rngInvItemNoHead = rngInvItem.Offset(1, 0).Resize(rngInvItem.Rows.Count - 1).SpecialCells(xlCellTypeVisible)
+            On Error GoTo 0
+
+            If Not rngInvItemNoHead Is Nothing Then
+                rngInvItemNoHead.Copy Destination:=ws_print_invoice.Range("U27:AT27")
+                countInvoiceDetailItem  = Application.CountA(ws_print_invoice.Range("U27:U" & ws_print_invoice.Cells(Rows.Count, "U").End(xlUp).Row))
+            Else
+                countInvoiceDetailItem = 0
+            End If
+
+            ' 3. Copy and paste to the next empty row on the destination sheet
+            If ws_inv_item_data.FilterMode Then ws_inv_item_data.ShowAllData
+
+            '*******advanced filter service data************
+            Dim rngInvService As Range
+            Dim rngSearchServiceCriteria As Range
+            Dim rngInvServiceNoHead As Range
+            Dim rowCount, colCount As Long
+
+            Set rngInvService = ws_inv_service_data.Range("C7:Y" & lastInvServiceId) 'database range
+            Set rngSearchServiceCriteria = ws_print_invoice.Range("U17:AQ18") 'Q20:AP21
+
+            'filter the database using the criteria
+            rngInvService.AdvancedFilter Action:=xlFilterInPlace, CriteriaRange:=rngSearchServiceCriteria, Unique:=False
+
+            ' 2. Exclude the header row using Offset(1, 0) and Resize
+            On Error Resume Next ' Handles cases where 0 rows match the filter
+                Set rngInvServiceNoHead = rngInvService.Offset(1, 0).Resize(rngInvService.Rows.Count - 1).SpecialCells(xlCellTypeVisible)
+            On Error GoTo 0
+
+            '************Resize array service much sales invoice by item column************
+
+            ' Exit if no visible rows remain after filtering
+            If ws_inv_service_data.FilterMode Then ws_inv_service_data.ShowAllData 'clear filter on the source sheet
+            
+            If rngInvServiceNoHead Is Nothing Then
+                rowCount = 0
+            Else
+                Dim sourceArr, desArr, arrHeader1, arrHeader2 As Variant
+                Dim r,c, insertAfterCol1 ,numNewCols1 ,insertAfterCol2,numNewCols2 As Long
+
+                ' Convert the multi-area visible range into a 2D Variant array
+                sourceArr = VisibleRangeToArray(rngInvServiceNoHead)
+
+                ' 1. Define the new headers to insert after Column U (Column 21)
+                arrHeader1          = Array("Invoice Service ID") 'insert header after column D (column 4)
+                arrHeader2          = Array("Lote Number", "Expired Date") 'insert header after column T (column 20)
+
+                insertAfterCol1     = 2 'insert between columns D and E (after column D)
+                insertAfterCol2     = 19 'insert between columns T and U (after column T)
+                numNewCols1         = UBound(arrHeader1) - LBound(arrHeader1) + 1
+                numNewCols2         = UBound(arrHeader2) - LBound(arrHeader2) + 1
+
+                ' 2. Load existing data into a 1-based 2D array (assumes headers are in Row 1)
+                rowCount            = UBound(sourceArr, 1) 'total row service data
+                colCount            = UBound(sourceArr, 2) 'total column service data
+                
+                ReDim desArr(1 To rowCount, 1 To colCount + numNewCols1 + numNewCols2)
+                
+                ' 4. Loop through rows and columns to map data and insert headers
+                For r = 1 To rowCount
+                    For c = 1 To colCount
+                         If c > insertAfterCol1 And c <= insertAfterCol2 Then
+                            desArr(r, c + numNewCols1) = sourceArr(r, c)
+                            If c = 3 Then
+                                desArr(r, insertAfterCol1 + 1) = "" 'invoice service id
                             End If
+                        ElseIf c >= insertAfterCol2 Then
+                            ' Shift columns after the second insertion point
+                            If c = 20 Then
+                                desArr(r, insertAfterCol2 + 1) = "" 'lots number
+                            End If
+                            If c = 21 Then
+                                desArr(r, insertAfterCol2 + 2) = "" 'expired date
+                            End If
+                            desArr(r, c + numNewCols1 + numNewCols2) = sourceArr(r, c)
                         Else
-                            If (k Mod 15 = 0) Then ' k = 13 or k = 26 or k = 39 or k = 52 or k = 65
-                                k = k + 8
-                            End If
+                            desArr(r, c) = sourceArr(r, c)
                         End If
-                        ws_print_invoice.Cells(k + 26, "D") = m
-                        ws_print_invoice.Cells(k + 26, "F") = productCode & " " & productName
-                        ws_print_invoice.Cells(k + 26, "I") = qty
-                        ws_print_invoice.Cells(k + 26, "J") = productUoM
-                        ws_print_invoice.Cells(k + 26, "K") = unitPrice
-                        ws_print_invoice.Cells(k + 26, "M") = totalPrice
-                    End If
-                End If
-            Next j
+                    Next c
+                Next r
+                ws_print_invoice.Range("U" & countInvoiceDetailItem + 27).Resize(rowCount, colCount + numNewCols1 + numNewCols2).Value = desArr
+            End If
 
-            For i = 1 To countInvoiceServiceItem
-                If (rangeInvoiceService.Cells(i, 2) = invoiceId) Then
-                    productCode = rangeInvoiceService.Cells(i, 7)
-                    productName = rangeInvoiceService.Cells(i, 8)           'MID(Split(rangeInvoiceDetail.Cells(i, 7),"#")(0), 7, 100)
-                    qty = rangeInvoiceService.Cells(i, 9)
-                    qtyFree = rangeInvoiceService.Cells(i, 10)
-                    productUoM = Application.VLookup(Mid(rangeInvoiceService.Cells(i, 11), 1, 3) * 1, rngUom, 5, False)
-                    unitPrice = rangeInvoiceService.Cells(i, 17)
-                    totalPrice = rangeInvoiceService.Cells(i, 18)
+            If ws_inv_service_data.FilterMode Then ws_inv_service_data.ShowAllData 'clear filter on the source sheet
 
-                    Set criteriaRange1 = ws_inv_service_data.Range("D8:D" & countInvoiceServiceItem + 7) 'column invoice id
-                    Set criteriaRange2 = ws_inv_service_data.Range("Y8:Y" & countInvoiceServiceItem + 7) 'column status
-                    countItem = Application.COUNTIFS(criteriaRange1, invoiceId, criteriaRange2, 1)
-
-                    If (qty > 0) Then
-                        k = k + 1
-                        m = m + 1
-                        If (countItem >= 26 And countItem <= 104) Then '26, 52, 78, 104
-                            If (k Mod 26 = 0) Then
-                                k = k + 1
-                            End If
-                        Else
-                            If (k Mod 15 = 0) Then ' k = 13 or k = 26 or k = 39 or k = 52 or k = 65
-                                k = k + 8
-                            End If
-                        End If
-                        ws_print_invoice.Cells(k + 26, "D") = m
-                        ws_print_invoice.Cells(k + 26, "F") = productCode & " " & productName
-                        ws_print_invoice.Cells(k + 26, "I") = qty
-                        ws_print_invoice.Cells(k + 26, "J") = productUoM
-                        ws_print_invoice.Cells(k + 26, "K") = unitPrice
-                        ws_print_invoice.Cells(k + 26, "M") = totalPrice
-                    End If
-                End If
-            Next i
-
-            lastRow = k + 27
+            lastRow = countInvoiceDetailItem + rowCount + 27
             ws_print_invoice.Range("C" & lastRow & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
             ' OnEnd
         End If
     Else
-        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
+        ws_print_invoice.Range("U27:AT143").Value = ""
     End If
 End Sub
 

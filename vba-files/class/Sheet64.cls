@@ -100,7 +100,7 @@ Private Sub invAdjComboBox_Change()
     Set ws_product         = activeWorkbook.Sheets("ProductList")
 
     If (Me.invAdjComboBox.Value <> "Please select adjustment code" And Me.invAdjComboBox.Value <> "") Then 'checkDatabaseFile = TRUE And
-        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
+        ws_print_adj.Range("U27:AT143").Value = ""
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
         databasePath        = ws_file_setting.Range("database_path").Value
         databaseFile        = databasePath & "database_kscm.xlsm"
@@ -125,7 +125,7 @@ Private Sub invAdjComboBox_Change()
         Set rngWarehouse         = ws_warehouse.Range("C8:K" & lastLocationGroupId)
         Set rngProductList       = ws_product.Range("C8:Z" & lastProductRow)
 
-        countAdjDetailItem  = Application.CountA(rangeInvDetailId)
+        ' countAdjDetailItem  = Application.CountA(rangeInvDetailId)
         AdjId               = CInt(Split(Me.invAdjComboBox.Value, "#")(1))
         adjCode             = Split(Me.invAdjComboBox.Value, "#")(0)
        
@@ -153,6 +153,7 @@ Private Sub invAdjComboBox_Change()
         warehouseName    = Application.VLookup(warehouseId,rngWarehouse,4,False)
 
         'adjustment Information
+        ws_print_adj.Range("print_adj_id").Value = AdjId
         ws_print_adj.Range("print_adj_code").Value = adjCode
         ws_print_adj.Range("print_adj_date").Value = adjDate
         ws_print_adj.Range("print_adj_note").Value = adjNote
@@ -170,68 +171,47 @@ Private Sub invAdjComboBox_Change()
         ws_print_adj.Range("C27" & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = False 'Show all row in range print invoice
         ' debug.print "countAdjDetailItem=" & countAdjDetailItem
 
-        If AdjId > 0 And countAdjDetailItem > 0 Then
-            k = 0
-            grandTotalAmount = 0
-            For j = 1 To countAdjDetailItem
-                If (rngAdjDetail.Cells(j, 2) = AdjId) Then
-                    ' disItem             = rngAdjDetail.Cells(j,6)
-                    ' totalDisItem        = rngAdjDetail.Cells(j,6)
-                    productId       = rngAdjDetail.Cells(j, 9)
-                    productCode     = rngAdjDetail.Cells(j, 10)
-                    productName     = rngAdjDetail.Cells(j, 11)           'MID(Split(rngAdjDetail.Cells(j, 7),"#")(0), 7, 100)
-                    qty             = rngAdjDetail.Cells(j, 14)
-                    ' qtyFree         = rngAdjDetail.Cells(j, 11)
-                    productUoM      = Application.VLookup(Mid(rngAdjDetail.Cells(j, 15), 1, 3) * 1, rngUom, 5, False)
-                    unitCost        = rngAdjDetail.Cells(j, 18)
-                    totalCost       = rngAdjDetail.Cells(j, 19)
-                    locationName    = Application.VLookup(rngAdjDetail.Cells(j, 5), rngLocation, 4, False)
-                    smallValUom     = Application.Vlookup(productId,rngProductList,18,False)
-                    conversion      = rngAdjDetail.Cells(j, 16)
+        If AdjId > 0 Then
+            Dim rngInvAdjItem As Range
+            Dim rngSearchCriteria As Range
+            Dim rngInvAdjItemNoHead As Range
 
-                    Set criteriaRange1 = ws_inv_item_data.Range("D8:D" & countAdjDetailItem + 7) 'column invoice id
-                    Set criteriaRange2 = ws_inv_item_data.Range("Y8:Y" & countAdjDetailItem + 7) 'column status
-                    countItem          = Application.COUNTIFS(criteriaRange1,AdjId,criteriaRange2,1)
-                    ' debug.Print "countItem=" & countItem
+            'define the database and criteria ranges
+            If ws_inv_item_data.FilterMode Then ws_inv_item_data.ShowAllData
+            On Error Resume Next
+            ActiveSheet.ShowAllData
+            On Error GoTo 0
 
-                    If (qty > 0) Then
-                        k = k + 1
-                        'set condition to manage page
-                        If (countItem >= 26 AND countItem <= 104) Then '26, 52, 78, 104
-                            If (k Mod 26 = 0) Then  '=> limit 26 rows per page
-                                ' Debug.Print "***************k=" & k
-                                k = k + 1
-                            End If
-                        Else
-                            If (k Mod 13 = 0) Then ' k = 13 => limit 12 rows per page
-                                ' Debug.Print "***************k=" & k
-                                k = k + 14
-                            End If
-                        End If
-                        ' debug.Print "k=" & k
-                        rangePrintInvItem.Cells(k, 1) = k
-                        rangePrintInvItem.Cells(k, 2) = productCode
-                        rangePrintInvItem.Cells(k, 3) = productName
-                        rangePrintInvItem.Cells(k, 6) = locationName
-                        rangePrintInvItem.Cells(k, 7) = (qty/smallValUom) * conversion
-                        rangePrintInvItem.Cells(k, 8) = productUoM
-                        rangePrintInvItem.Cells(k, 9) = unitCost
-                        rangePrintInvItem.Cells(k, 10) = totalCost
-                        grandTotalAmount = grandTotalAmount + totalCost
-                    End If
-                End If
-            Next j
-            lastRow = k + 27
+            Set rngInvAdjItem = ws_inv_item_data.Range("C7:AB" & lastAdjDetailId) 'database range
+            Set rngSearchCriteria = ws_print_adj.Range("U12:AT13") 
+            
+            'filter the database using the criteria
+            rngInvAdjItem.AdvancedFilter Action:=xlFilterInPlace, CriteriaRange:=rngSearchCriteria, Unique:=False
+
+            ' 2. Exclude the header row using Offset(1, 0) and Resize
+            On Error Resume Next ' Handles cases where 0 rows match the filter
+                Set rngInvAdjItemNoHead = rngInvAdjItem.Offset(1, 0).Resize(rngInvAdjItem.Rows.Count - 1).SpecialCells(xlCellTypeVisible)
+            On Error GoTo 0
+
+            If Not rngInvAdjItemNoHead Is Nothing Then
+                rngInvAdjItemNoHead.Copy Destination:=ws_print_adj.Range("U27:AT27")
+                countAdjDetailItem  = Application.CountA(ws_print_adj.Range("U27:U" & ws_print_adj.Cells(Rows.Count, "U").End(xlUp).Row))
+            Else
+                countAdjDetailItem = 0
+            End If
+
+            ' 3. Copy and paste to the next empty row on the destination sheet
+            If ws_inv_item_data.FilterMode Then ws_inv_item_data.ShowAllData
+
+            lastRow = countAdjDetailItem + 27
             ws_print_adj.Range("C" & lastRow & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
         End If
-        ws_print_adj.Range("print_adj_total_cost_usd").Value = grandTotalAmount
+        ' ws_print_adj.Range("print_adj_total_cost_usd").Value = grandTotalAmount
     Else
-        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
-        ws_print_adj.Range("C27:C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
+        ws_print_adj.Range("U27:AT143").Value = ""
+        ' ws_print_adj.Range("C27:C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
     End If
-    
     ' OnEnd
-
 End Sub
 
 Private Sub Worksheet_Activate()

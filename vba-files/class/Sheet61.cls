@@ -29,6 +29,63 @@ Private Sub OnEnd()
     Application.AskToUpdateLinks = True
 End Sub
 
+' 1.Id
+' 2.PB ID
+' 3.Purchase Receive Id
+' 4.PB Code
+' 5.PB Date
+' 6.Vendor Id
+' 7.Product Id
+' 8.Product Code
+' 9.Product Name
+' 10.Qty
+' 11.Qty Free
+' 12.UoM
+' 13.Uom Id
+' 14.Conversion
+' 15.Discount Id
+' 16.Discount Amount
+' 17.Discount Percent
+' 18.Default Cost
+' 19.New Unit Cost
+' 20.Unit Cost
+' 21.Total Dis Item
+' 22.Total Cost
+' 23.Lote Number
+' 24.Expired date
+' 25.Remark
+' 26.Status
+' 27.Week
+' 28.Month
+' 29.Year
+
+' 1.Id
+' 2.PB ID
+' 3.PB Code
+' 4.PB Date
+' 5.Vendor Id
+' 6.Service Id
+' 7.Service Code
+' 8.Service Name
+' 9.Qty
+' 10.Qty Free
+' 11.UoM
+' 12.Uom Id
+' 13.Conversion
+' 14.Discount Id
+' 15.Discount Amount
+' 16.Discount Percent
+' 17.Default Cost
+' 18.New Cost
+' 19.Total Dis Item
+' 20.Unit Cost
+' 21.Total Cost
+' 22.Remark
+' 23.Status
+' 24.Week
+' 25.Month
+' 26.Year
+
 Private Sub PurchaseBillComboBox_Change()
     ' OnStart
     'loop variable
@@ -75,7 +132,7 @@ Private Sub PurchaseBillComboBox_Change()
     Set rangePrintInvItem = ws_print_pb.Range("print_pb_items")
 
     If (Me.PurchaseBillComboBox.Value <> "Please select purchase code" And Me.PurchaseBillComboBox.Value <> "") Then 'checkDatabaseFile = TRUE And
-        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
+        ws_print_pb.Range("U27:AW143").Value = ""
         Set ws_file_setting = activeWorkbook.Sheets("FilesSetting")
         databasePath        = ws_file_setting.Range("database_path").Value
         databaseFile        = databasePath & "database_kscm.xlsm"
@@ -98,8 +155,8 @@ Private Sub PurchaseBillComboBox_Change()
         Set rngPbServiceId       = ws_pb_service.Range("C8:C" & ws_pb_service.Cells(Rows.Count, "C").End(xlUp).Row)
         Set rngPbDetail          = ws_inv_item_data.Range("C8:Z" & ws_inv_item_data.Cells(Rows.Count, "C").End(xlUp).Row)
         
-        countPurchaseDetailItem  = Application.CountA(rangeInvDetailId)
-        countPurchaseServiceItem = Application.CountA(rngPbServiceId)
+        ' countPurchaseDetailItem  = Application.CountA(rangeInvDetailId)
+        ' countPurchaseServiceItem = Application.CountA(rngPbServiceId)
         purchaseId               = CInt(Split(Me.PurchaseBillComboBox.Value, "#")(1))
         PbCode                   = Split(Me.PurchaseBillComboBox.Value, "#")(0)
         
@@ -156,6 +213,7 @@ Private Sub PurchaseBillComboBox_Change()
         End If
 
         'pb Information
+        ws_print_pb.Range("print_pb_id").Value = purchaseId
         ws_print_pb.Range("print_pb_code").Value = PbCode
         ws_print_pb.Range("print_pb_date").Value = pbDate
         ws_print_pb.Range("print_pb_due_date").Value = pbDueDate
@@ -195,122 +253,123 @@ Private Sub PurchaseBillComboBox_Change()
         ws_print_pb.Range("print_pb_vendor_tin_number").Value = vendorTinNumber
 
         ws_print_pb.Range("C27" & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = False 'Show all row in range print invoice
-        If purchaseId > 0 And countPurchaseDetailItem > 0 Then
-            k = 0
-            For i = 1 To countPurchaseDetailItem
-                If (rngPbDetail.Cells(i, 2) = purchaseId) Then
-                    productCode     = rngPbDetail.Cells(i, 8)
-                    productName     = rngPbDetail.Cells(i, 9)           'MID(Split(rngPbDetail.Cells(i, 7),"#")(0), 7, 100)
-                    qty             = rngPbDetail.Cells(i, 10)
-                    qtyFree         = rngPbDetail.Cells(i, 11)
-                    productUoM      = Application.VLookup(Mid(rngPbDetail.Cells(i, 13), 1, 3) * 1, rngUom, 5, False)
-                    unitCost        = rngPbDetail.Cells(i, 20)
-                    totalCost       = rngPbDetail.Cells(i, 22)
 
-                    Set criteriaRange1 = ws_inv_item_data.Range("D8:D" & countPurchaseDetailItem + 7) 'column invoice id
-                    Set criteriaRange2 = ws_inv_item_data.Range("AB8:AB" & countPurchaseDetailItem + 7) 'column status
-                    countItem          = Application.COUNTIFS(criteriaRange1,purchaseId,criteriaRange2,1)
+        If purchaseId > 0 Then
+            ' U19:AT20
+            ' U21:AW22
+            ' U27:AW27
+            ' *******advanced filter item data************
+            Dim rngPbItem As Range
+            Dim rngSearchCriteria As Range
+            Dim rngPbItemNoHead As Range
 
-                    If (qty > 0) Then
-                        k = k + 1
-                        'set condition to manage page 
-                        ' If (countItem >= 26 AND countItem <= 104) Then '26, 52, 78, 104
-                        '     If (k Mod 26 = 0) Then  '=> limit 26 rows per page
-                        '         ' Debug.Print "***************k=" & k
-                        '         k = k + 1
-                        '     End If
-                        ' Else
-                        '     If (k Mod 13 = 0) Then ' k = 13 => limit 12 rows per page
-                        '         ' Debug.Print "***************k=" & k
-                        '         k = k + 14
-                        '     End If
-                        ' End If
-                        ' debug.Print "k=" & k
-                        rangePrintInvItem.Cells(k, 1) = productCode
-                        rangePrintInvItem.Cells(k, 2) = productName
-                        rangePrintInvItem.Cells(k, 5) = productUoM
-                        rangePrintInvItem.Cells(k, 6) = qty
-                        rangePrintInvItem.Cells(k, 7) = unitCost
-                        rangePrintInvItem.Cells(k, 8) = totalCost
-                        rangePrintInvItem.Cells(k, 9) = totalCost * exchangeRate
-                    End If
-                End If
-            Next i
+            'define the database and criteria ranges
+            If ws_inv_item_data.FilterMode Then ws_inv_item_data.ShowAllData
+            On Error Resume Next
+            ActiveSheet.ShowAllData
+            On Error GoTo 0
 
-            '******purchase bill service*****
-            ' C - Id
-            ' D - PB ID
-            ' E - PB Code
-            ' F - PB Date
-            ' G - Vendor Id
-            ' H - Service Id
-            ' I - Service Code
-            ' J - Service Name
-            ' K - Qty
-            ' L - Qty Free
-            ' M - UoM
-            ' N - Uom Id
-            ' O - Conversion
-            ' P - Discount Id
-            ' Q - Discount Amount
-            ' R - Discount Percent
-            ' S - Default Cost
-            ' T - New Cost
-            ' U - Total Dis Item
-            ' V - Unit Cost
-            ' W - Total Cost
-            ' X - Remark
-            ' Y - Status
-            ' Z - Week
-            ' AA - Month
-            ' AB - Year
-            For j = 1 To countPurchaseServiceItem
-                If ws_pb_service.Cells(j + 7, "D") = purchaseId Then
-                    productCode     = ws_pb_service.Cells(j + 7, "I")          
-                    productName     = ws_pb_service.Cells(j + 7, "J")          
-                    qty             = ws_pb_service.Cells(j + 7, "K")
-                    qtyFree         = ws_pb_service.Cells(j + 7, "L")
-                    productUoM      = ws_pb_service.Cells(j + 7, "M") 'Application.VLookup(Mid(ws_pb_service.Cells(j + 7, "M"), 1, 3) * 1, rngUom, 5, False)
-                    unitCost        = ws_pb_service.Cells(j + 7, "V")
-                    totalCost       = ws_pb_service.Cells(j + 7, "W")
+            Set rngPbItem = ws_inv_item_data.Range("C7:AE" & ws_inv_item_data.Cells(Rows.Count, "C").End(xlUp).Row) 'database range
+            Set rngSearchCriteria = ws_print_pb.Range("U21:AW22") 
+            
+            'filter the database using the criteria
+            rngPbItem.AdvancedFilter Action:=xlFilterInPlace, CriteriaRange:=rngSearchCriteria, Unique:=False
 
-                    Set criteriaRange1 = ws_pb_service.Range("D8:D" & countPurchaseServiceItem + 7) 'column purchase bill id
-                    Set criteriaRange2 = ws_pb_service.Range("Y8:Y" & countPurchaseServiceItem + 7) 'column status
-                    countItem          = Application.COUNTIFS(criteriaRange1,purchaseId,criteriaRange2,1)
+            ' 2. Exclude the header row using Offset(1, 0) and Resize
+            On Error Resume Next ' Handles cases where 0 rows match the filter
+                Set rngPbItemNoHead = rngPbItem.Offset(1, 0).Resize(rngPbItem.Rows.Count - 1).SpecialCells(xlCellTypeVisible)
+            On Error GoTo 0
 
-                    If (qty > 0) Then
-                        k = k + 1
-                        'set condition to manage page 
-                        ' If (countItem >= 26 AND countItem <= 104) Then '26, 52, 78, 104
-                        '     If (k Mod 26 = 0) Then  '=> limit 26 rows per page
-                        '         ' Debug.Print "***************k=" & k
-                        '         k = k + 1
-                        '     End If
-                        ' Else
-                        '     If (k Mod 13 = 0) Then ' k = 13 => limit 12 rows per page
-                        '         ' Debug.Print "***************k=" & k
-                        '         k = k + 14
-                        '     End If
-                        ' End If
-                        ' debug.Print "k=" & k
-                        rangePrintInvItem.Cells(k, 1) = productCode
-                        rangePrintInvItem.Cells(k, 2) = productName
-                        rangePrintInvItem.Cells(k, 5) = productUoM
-                        rangePrintInvItem.Cells(k, 6) = qty
-                        rangePrintInvItem.Cells(k, 7) = unitCost
-                        rangePrintInvItem.Cells(k, 8) = totalCost
-                        rangePrintInvItem.Cells(k, 9) = totalCost * exchangeRate
-                    End If
-                End If
-            Next j
-            lastRow = k + 27
-            ws_print_pb.Range("C" & lastRow & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
+            If Not rngPbItemNoHead Is Nothing Then
+                rngPbItemNoHead.Copy Destination:=ws_print_pb.Range("U27:AW27")
+                countPurchaseDetailItem  = Application.CountA(ws_print_pb.Range("U27:U" & ws_print_pb.Cells(Rows.Count, "U").End(xlUp).Row))
+            Else
+                countPurchaseDetailItem = 0
+            End If
+
+            ' 3. Copy and paste to the next empty row on the destination sheet
+            If ws_inv_item_data.FilterMode Then ws_inv_item_data.ShowAllData
+
+            '*******advanced filter service data************
+
+            Dim rngPbService As Range
+            Dim rngSearchServiceCriteria As Range
+            Dim rngPbServiceNoHead As Range
+            Dim rowCount, colCount As Long
+
+            Set rngPbService = ws_pb_service.Range("C7:AB" & ws_pb_service.Cells(Rows.Count, "C").End(xlUp).Row) 'database range
+            Set rngSearchServiceCriteria = ws_print_pb.Range("U19:AT20")
+
+            'filter the database using the criteria
+            rngPbService.AdvancedFilter Action:=xlFilterInPlace, CriteriaRange:=rngSearchServiceCriteria, Unique:=False
+
+            ' 2. Exclude the header row using Offset(1, 0) and Resize
+            On Error Resume Next ' Handles cases where 0 rows match the filter
+                Set rngPbServiceNoHead = rngPbService.Offset(1, 0).Resize(rngPbService.Rows.Count - 1).SpecialCells(xlCellTypeVisible)
+            On Error GoTo 0
+
+            '************Resize array service much sales invoice by item column************
+
+            ' Exit if no visible rows remain after filtering
+            If ws_pb_service.FilterMode Then ws_pb_service.ShowAllData 'clear filter on the source sheet
+
+            If rngPbServiceNoHead Is Nothing Then
+                rowCount = 0
+            Else
+                Dim sourceArr, desArr, arrHeader1, arrHeader2 As Variant
+                Dim r,c, insertAfterCol1 ,numNewCols1 ,insertAfterCol2,numNewCols2 As Long
+
+                ' Convert the multi-area visible range into a 2D Variant array
+                sourceArr = VisibleRangeToArray(rngPbServiceNoHead)
+
+                ' 1. Define the new headers to insert after Column U (Column 21)
+                arrHeader1          = Array("Purchase Receive Id") 'insert header after column D (column 4)
+                arrHeader2          = Array("Lote Number", "Expired Date") 'insert header after column T (column 20)
+
+                insertAfterCol1     = 2 'insert between columns D and E (after column D)
+                insertAfterCol2     = 22 'insert between columns T and U (after column T)
+                numNewCols1         = UBound(arrHeader1) - LBound(arrHeader1) + 1
+                numNewCols2         = UBound(arrHeader2) - LBound(arrHeader2) + 1
+
+                ' 2. Load existing data into a 1-based 2D array (assumes headers are in Row 1)
+                rowCount            = UBound(sourceArr, 1) 'total row service data
+                colCount            = UBound(sourceArr, 2) 'total column service data
+                
+                ReDim desArr(1 To rowCount, 1 To colCount + numNewCols1 + numNewCols2)
+                
+                ' 4. Loop through rows and columns to map data and insert headers
+                For r = 1 To rowCount
+                    For c = 1 To colCount
+                        If c > insertAfterCol1 And c <= insertAfterCol2 Then
+                            desArr(r, c + numNewCols1) = sourceArr(r, c)
+                            If c = 3 Then
+                                desArr(r, insertAfterCol1 + 1) = "" 'Purchase Receive Id
+                            End If
+                        ElseIf c >= insertAfterCol2 Then
+                            ' Shift columns after the second insertion point
+                            desArr(r, c + numNewCols1 + numNewCols2) = sourceArr(r, c)
+                            If c = 23 Then
+                                desArr(r, insertAfterCol2 + 1) = "" 'lots number
+                            End If
+                            If c = 24 Then
+                                desArr(r, insertAfterCol2 + 2) = "" 'expired date
+                            End If
+                        Else
+                            desArr(r, c) = sourceArr(r, c)
+                        End If
+                    Next c
+                Next r
+                ws_print_pb.Range("U" & countPurchaseDetailItem + 27).Resize(rowCount, colCount + numNewCols1 + numNewCols2).Value = desArr
+            End If
+
+            If ws_pb_service.FilterMode Then ws_pb_service.ShowAllData 'clear filter on the source sheet
+            lastRow = countPurchaseDetailItem + rowCount + 27
+            
+            ' ws_print_pb.Range("C" & lastRow & ":C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
         End If
     Else
-        ' MsgBox "Database file doesn't exist."
-        ' Exit Sub
-        rangePrintInvItem.Value = "" ' rangePrintInvItem.ClearContents
-        ws_print_pb.Range("C27:C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
+        ws_print_pb.Range("U27:AW143").Value = "" ' rangePrintInvItem.ClearContents
+        ' ws_print_pb.Range("C27:C" & rangePrintInvItem.Rows.Count + 26).EntireRow.Hidden = True 'Hide empty row
     End If
 
     ' OnEnd
@@ -318,44 +377,6 @@ End Sub
 
 Private Sub Worksheet_Activate()
     ' OnStart
-
-    ' ' pb Information
-    ' ws_print_pb.Range("print_pb_code").Value = ""
-    ' ws_print_pb.Range("print_pb_date").Value = ""
-    ' ws_print_pb.Range("print_pb_due_date").Value = ""
-    ' ws_print_pb.Range("print_pb_note").Value = ""
-    ' ws_print_pb.Range("print_pb_exchange_rate").Value = ""
-    ' ws_print_pb.Range("print_pb_company_name_kh").Value = ""
-    ' ws_print_pb.Range("print_pb_company_name_en").Value = ""
-    ' ws_print_pb.Range("print_pb_company_tin").Value = ""
-    ' ws_print_pb.Range("print_pb_payment_term_id").Value = ""
-    ' ws_print_pb.Range("print_pb_payment_net_days").Value = ""
-
-    ' ws_print_pb.Range("print_pb_sub_total").Value = 0
-    ' ws_print_pb.Range("print_pb_sub_total_kh").Value = 0
-    ' ws_print_pb.Range("print_pb_toal_discount").Value = 0
-    ' ws_print_pb.Range("print_pb_toal_discount_kh").Value = 0
-    ' ws_print_pb.Range("print_pb_toal_deposit").Value = 0
-    ' ws_print_pb.Range("print_pb_toal_vat").Value = 0
-    ' ws_print_pb.Range("print_pb_grand_total").Value = 0
-    ' ws_print_pb.Range("print_pb_grand_total_kh").Value = 0
-
-    ' ' Branch information bankName,accountName,accountNo,branchAddressKh,branchTel,branchEmail
-    ' ws_print_pb.Range("print_pb_bank_name").Value = ""
-    ' ws_print_pb.Range("print_pb_account_name").Value = ""
-    ' ws_print_pb.Range("print_pb_account_no").Value = ""
-    ' ws_print_pb.Range("print_pb_branch_address_kh").Value = ""
-    ' ws_print_pb.Range("print_pb_branch_telephone").Value = ""
-    ' ws_print_pb.Range("print_pb_branch_email").Value = ""
-
-    ' ' ' vendor Information
-    ' ws_print_pb.Range("print_pb_vendor_name_kh").Value = ""
-    ' ws_print_pb.Range("print_pb_vendor_name_en").Value = ""
-    ' ws_print_pb.Range("print_pb_vendor_address_kh").Value = ""
-    ' ws_print_pb.Range("print_pb_vendor_tel").Value = ""
-    ' ws_print_pb.Range("print_pb_vendor_email").Value = ""
-    ' ws_print_pb.Range("print_pb_vendor_tin_number").Value = ""
-
     Dim activeWorkbook, wbDatabase As Workbook
     Dim ws_print_pb, ws_inv_data, ws_file_setting As Worksheet
     Dim rowPbCode, rowpurchaseId As Range

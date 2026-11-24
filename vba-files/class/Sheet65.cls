@@ -49,7 +49,7 @@ Private Sub ProductAddPrice_Change()
         productCode = Split(Split(Me.ProductAddPrice.Value, "#")(0), " _ ")(0)
         productName = Split(Split(Me.ProductAddPrice.Value, "#")(0), " _ ")(1)
 
-        Set rngProductList = ws_product.Range("product_list")
+        Set rngProductList = ws_product.Range("C8:AA" & ws_product.Cells(Rows.Count, "C").end(xlUp).row)
         ws_pro_price.Range("product_price_pid").Value = productId
         ws_pro_price.Range("product_price_uom").Value = Application.VLookup(productId, rngProductList, 8, False)
         ws_pro_price.Range("product_price_uom_id").Value = CInt(MID(Application.VLookup(productId, rngProductList, 8, False), 1, 3))

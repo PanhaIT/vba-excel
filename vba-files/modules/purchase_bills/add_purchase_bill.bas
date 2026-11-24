@@ -853,8 +853,8 @@ Private Sub SavePurchaseBill()
                                 ws_pb_service.Cells(pb_service_id + 7, "R")   = "" 'Dis Percent
                                 ws_pb_service.Cells(pb_service_id + 7, "S")   = unitCost 'Default cost
                                 ws_pb_service.Cells(pb_service_id + 7, "T")   = costOrder 'New Unit Cost
-                                ws_pb_service.Cells(pb_service_id + 7, "U")   = totalDisItem 'Total Dis Item
-                                ws_pb_service.Cells(pb_service_id + 7, "V")   = unitCost 'unit cost
+                                ws_pb_service.Cells(pb_service_id + 7, "U")   = unitCost 'unit cost
+                                ws_pb_service.Cells(pb_service_id + 7, "V")   = totalDisItem 'Total Dis Item
                                 ws_pb_service.Cells(pb_service_id + 7, "W")   = totalCost 'total cost
                                 ws_pb_service.Cells(pb_service_id + 7, "X")   = remark 'Note
                                 ws_pb_service.Cells(pb_service_id + 7, "Y")   = 1 'status
@@ -905,7 +905,6 @@ Private Sub SavePurchaseBill()
                                     ws_gld_data.Cells(gld_discount_id,28) = pbYear 'year
                                     gld_discount_id = gld_discount_id + 1
                                 End If
-
                                 pb_service_id = pb_service_id + 1
                             End If
                         End If
